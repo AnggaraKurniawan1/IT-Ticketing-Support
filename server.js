@@ -38,7 +38,7 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
-  secret: 'it-helpdesk-secret-2026-xK9p',
+  secret: process.env.SESSION_SECRET || 'it-helpdesk-secret-2026-xK9p',
   resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 8 * 60 * 60 * 1000 } // 8 hours

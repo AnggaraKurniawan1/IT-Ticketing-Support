@@ -2,7 +2,9 @@ const { DatabaseSync } = require('node:sqlite');
 const path = require('node:path');
 const bcrypt = require('bcrypt');
 
-const dbPath = path.join(__dirname, 'tickets.db');
+// Use /data/ on Render (persistent disk) or __dirname locally
+const dataDir = process.env.RENDER ? '/data' : __dirname;
+const dbPath = path.join(dataDir, 'tickets.db');
 const db = new DatabaseSync(dbPath);
 
 // Enable WAL mode and foreign keys
