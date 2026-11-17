@@ -820,15 +820,6 @@ async function submitTicketComment() {
     showToast('Gagal mengirim pesan', 'error');
   }
 }
-      input.value = '';
-      renderActivitiesTimeline(json.data);
-    } else {
-      showToast(json.message || 'Gagal mengirim tanggapan', 'error');
-    }
-  } catch (err) {
-    showToast('Gagal mengirim pesan', 'error');
-  }
-}
 
 function handleCommentKeyPress(event) {
   if (event.key === 'Enter') {
