@@ -3,311 +3,318 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login — IT Helpdesk</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>Login — IT Support Helpdesk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#020617',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --slate-50: #f8fafc;
-      --slate-100: #f1f5f9;
-      --slate-200: #e2e8f0;
-      --slate-300: #cbd5e1;
-      --slate-400: #94a3b8;
-      --slate-500: #64748b;
-      --slate-600: #475569;
-      --slate-700: #334155;
-      --slate-800: #1e293b;
-      --slate-900: #0f172a;
-    }
-
     body {
-      font-family: 'Inter', sans-serif;
-      background: var(--slate-100);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
+      background-color: #f8fafc;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(226, 232, 240, 0.5) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(203, 213, 225, 0.4) 0px, transparent 50%);
     }
 
-    .login-card {
-      background: #fff;
-      border: 1px solid var(--slate-200);
-      border-radius: 0.75rem;
-      padding: 2.5rem 2rem;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: 
+        0 4px 6px -1px rgba(15, 23, 42, 0.05),
+        0 2px 4px -2px rgba(15, 23, 42, 0.05),
+        0 20px 25px -5px rgba(15, 23, 42, 0.03);
     }
 
-    .brand {
-      text-align: center;
-      margin-bottom: 2rem;
+    .account-card-active {
+      border-color: #0f172a !important;
+      background-color: #f8fafc !important;
+      box-shadow: 0 0 0 1px #0f172a;
     }
 
-    .brand-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--slate-800);
-      border-radius: 10px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 0.75rem;
+    .pulse-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #10b981;
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulse-green 2s infinite;
     }
 
-    .brand-icon svg { color: #fff; }
-
-    .brand h1 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--slate-800);
-      letter-spacing: -.02em;
+    @keyframes pulse-green {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
-
-    .brand p {
-      font-size: 0.8125rem;
-      color: var(--slate-500);
-      margin-top: 0.25rem;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    label {
-      display: block;
-      font-size: 0.8125rem;
-      font-weight: 500;
-      color: var(--slate-700);
-      margin-bottom: 0.375rem;
-    }
-
-    input {
-      width: 100%;
-      padding: 0.625rem 0.75rem;
-      border: 1px solid var(--slate-200);
-      border-radius: 0.5rem;
-      font-size: 0.875rem;
-      font-family: inherit;
-      color: var(--slate-800);
-      background: var(--slate-50);
-      outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-
-    input:focus {
-      border-color: var(--slate-400);
-      background: #fff;
-      box-shadow: 0 0 0 3px rgba(100,116,139,.12);
-    }
-
-    .password-wrapper {
-      position: relative;
-    }
-
-    .password-wrapper input { padding-right: 2.5rem; }
-
-    .toggle-pw {
-      position: absolute;
-      right: 0.75rem;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--slate-400);
-      display: flex;
-      align-items: center;
-      padding: 0;
-    }
-
-    .toggle-pw:hover { color: var(--slate-600); }
-
-    .btn-login {
-      width: 100%;
-      padding: 0.6875rem 1rem;
-      background: var(--slate-800);
-      color: #fff;
-      border: none;
-      border-radius: 0.5rem;
-      font-size: 0.875rem;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background 0.15s;
-      margin-top: 0.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-
-    .btn-login:hover { background: var(--slate-700); }
-    .btn-login:disabled { background: var(--slate-300); cursor: not-allowed; }
-
-    .error-box {
-      display: none;
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      border-radius: 0.5rem;
-      padding: 0.625rem 0.875rem;
-      font-size: 0.8125rem;
-      color: #b91c1c;
-      margin-bottom: 1rem;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .error-box.show { display: flex; }
-
-    .accounts-info {
-      margin-top: 1.5rem;
-      border-top: 1px solid var(--slate-100);
-      padding-top: 1.25rem;
-    }
-
-    .accounts-info p {
-      font-size: 0.75rem;
-      color: var(--slate-400);
-      text-align: center;
-      margin-bottom: 0.625rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-    }
-
-    .account-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.5rem 0.625rem;
-      border-radius: 0.375rem;
-      border: 1px solid var(--slate-100);
-      margin-bottom: 0.375rem;
-      cursor: pointer;
-      transition: background 0.1s;
-    }
-
-    .account-row:hover { background: var(--slate-50); }
-
-    .account-info { flex: 1; }
-    .account-name { font-size: 0.8125rem; font-weight: 500; color: var(--slate-700); }
-    .account-desc { font-size: 0.75rem; color: var(--slate-400); }
-
-    .role-badge {
-      font-size: 0.6875rem;
-      font-weight: 600;
-      padding: 0.125rem 0.5rem;
-      border-radius: 999px;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-    }
-
-    .role-badge.admin { background: var(--slate-800); color: #fff; }
-    .role-badge.user { background: var(--slate-100); color: var(--slate-600); }
 
     .spinner {
-      width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,.4);
-      border-top-color: #fff;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #ffffff;
       border-radius: 50%;
-      animation: spin .6s linear infinite;
+      animation: spin 0.6s linear infinite;
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
-<body>
-  <div class="login-card">
-    <div class="brand">
-      <div class="brand-icon">
-        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
-        </svg>
+<body class="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 text-brand-900 font-sans selection:bg-brand-900 selection:text-white antialiased">
+
+  <div class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+    
+    <!-- LEFT PANEL: Hero & Trust Overview (Visible on desktop) -->
+    <div class="lg:col-span-6 space-y-6 lg:pr-6">
+      
+      <!-- Brand & Status Pill -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-900 text-white flex items-center justify-center shadow-md shadow-brand-900/10">
+          <i data-lucide="headphones" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-mono font-semibold tracking-wider text-brand-500 uppercase">Internal Service Desk</span>
+          <h2 class="text-lg font-bold tracking-tight text-brand-950">IT Support Console</h2>
+        </div>
       </div>
-      <h1>IT Helpdesk</h1>
-      <p>Sistem Tiket Dukungan IT Internal</p>
+
+      <!-- Main Headline -->
+      <div class="space-y-2">
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-brand-950 leading-tight">
+          Pusat Kendali & Penanganan Masalah IT
+        </h1>
+        <p class="text-sm text-brand-600 leading-relaxed">
+          Platform terpadu untuk pengajuan kendala perangkat keras, software, jaringan, dan akun operasional dengan pemantauan status pengerjaan secara transparan.
+        </p>
+      </div>
+
+      <!-- Status Indicator Card -->
+      <div class="p-3.5 bg-white/80 border border-brand-200/80 rounded-xl flex items-center justify-between text-xs">
+        <div class="flex items-center gap-2.5">
+          <span class="pulse-dot"></span>
+          <span class="font-semibold text-brand-800">Sistem IT Support Operasional</span>
+        </div>
+        <span class="text-brand-500 font-mono text-[11px]">SLA Response &lt; 15m</span>
+      </div>
+
+      <!-- Feature Bullet Points -->
+      <div class="grid grid-cols-2 gap-3 pt-1">
+        <div class="p-3 rounded-lg border border-brand-200/60 bg-white/60">
+          <div class="w-7 h-7 rounded-md bg-brand-100 flex items-center justify-center text-brand-800 mb-2">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+          </div>
+          <div class="font-bold text-xs text-brand-900">Pemisahan Hak Akses</div>
+          <div class="text-[11px] text-brand-500 mt-0.5">Role khusus Karyawan & Teknisi IT</div>
+        </div>
+
+        <div class="p-3 rounded-lg border border-brand-200/60 bg-white/60">
+          <div class="w-7 h-7 rounded-md bg-brand-100 flex items-center justify-center text-brand-800 mb-2">
+            <i data-lucide="message-square-text" class="w-4 h-4"></i>
+          </div>
+          <div class="font-bold text-xs text-brand-900">Diskusi Langsung</div>
+          <div class="text-[11px] text-brand-500 mt-0.5">Timeline riwayat & solusi resmi</div>
+        </div>
+      </div>
+
     </div>
 
-    <div class="error-box" id="errorBox">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
-      </svg>
-      <span id="errorMsg">Username atau password salah.</span>
-    </div>
+    <!-- RIGHT PANEL: Sleek Login Form & 1-Click Demo Accounts -->
+    <div class="lg:col-span-6">
+      <div class="glass-card rounded-2xl p-6 sm:p-8">
+        
+        <div class="mb-6">
+          <h3 class="text-xl font-bold text-brand-950 tracking-tight">Masuk ke Sistem</h3>
+          <p class="text-xs text-brand-500 mt-1">Masukkan kredensial akun Anda atau pilih akun demo di bawah</p>
+        </div>
 
-    <form id="loginForm" autocomplete="on">
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" placeholder="Masukkan username" autocomplete="username" required />
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <div class="password-wrapper">
-          <input type="password" id="password" name="password" placeholder="Masukkan password" autocomplete="current-password" required />
-          <button type="button" class="toggle-pw" id="togglePw" title="Tampilkan/Sembunyikan password">
-            <svg id="eyeIcon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
+        <!-- Error Notification -->
+        <div id="errorBox" class="hidden mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-red-500"></i>
+          <span id="errorMsg">Username atau password salah.</span>
+        </div>
+
+        <!-- Form Login -->
+        <form id="loginForm" class="space-y-4">
+          <div>
+            <label for="username" class="block text-xs font-semibold text-brand-700 mb-1.5">
+              Username
+            </label>
+            <div class="relative">
+              <i data-lucide="user" class="w-4 h-4 text-brand-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+              <input 
+                type="text" 
+                id="username" 
+                name="username" 
+                placeholder="Contoh: admin atau nama.user" 
+                autocomplete="username" 
+                required 
+                class="w-full pl-9 pr-3 py-2 text-xs bg-brand-50/50 border border-brand-200 rounded-lg text-brand-900 placeholder:text-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 focus:bg-white transition"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="password" class="block text-xs font-semibold text-brand-700 mb-1.5">
+              Password
+            </label>
+            <div class="relative">
+              <i data-lucide="lock" class="w-4 h-4 text-brand-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+              <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                placeholder="Masukkan kata sandi Anda" 
+                autocomplete="current-password" 
+                required 
+                class="w-full pl-9 pr-9 py-2 text-xs bg-brand-50/50 border border-brand-200 rounded-lg text-brand-900 placeholder:text-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 focus:bg-white transition font-mono"
+              />
+              <button 
+                type="button" 
+                id="togglePw" 
+                title="Tampilkan / Sembunyikan Password" 
+                class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-brand-400 hover:text-brand-700 transition"
+              >
+                <i data-lucide="eye" class="w-4 h-4" id="eyeIcon"></i>
+              </button>
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            id="loginBtn" 
+            class="w-full py-2.5 px-4 bg-brand-900 hover:bg-brand-800 text-white font-semibold text-xs rounded-lg transition duration-150 flex items-center justify-center gap-2 shadow-sm shadow-brand-900/20"
+          >
+            <span id="btnText">Masuk ke Portal</span>
+            <span class="text-[10px] opacity-60 font-mono tracking-widest hidden sm:inline">↵ ENTER</span>
           </button>
+        </form>
+
+        <!-- DEMO ACCOUNTS QUICK SWITCHER (1-Click Fill) -->
+        <div class="mt-6 pt-5 border-t border-brand-200/80">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-brand-500">Akun Simulasi Demo</span>
+            <span class="text-[10px] text-brand-400">Klik untuk isi otomatis</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            
+            <!-- Admin Pill -->
+            <button 
+              type="button" 
+              onclick="fillAccount('admin', 'admin123', this)" 
+              class="account-card text-left p-2.5 rounded-xl border border-brand-200 hover:border-brand-400 bg-white hover:bg-brand-50/60 transition group flex items-center gap-2.5"
+            >
+              <div class="w-8 h-8 rounded-lg bg-brand-900 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                IT
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold text-xs text-brand-900 truncate">Ahmad</span>
+                  <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-brand-900 text-white uppercase tracking-wider">Admin</span>
+                </div>
+                <div class="text-[11px] text-brand-500 font-mono truncate">admin / admin123</div>
+              </div>
+            </button>
+
+            <!-- User 1: Siti (Finance) -->
+            <button 
+              type="button" 
+              onclick="fillAccount('siti.rahma', 'user123', this)" 
+              class="account-card text-left p-2.5 rounded-xl border border-brand-200 hover:border-brand-400 bg-white hover:bg-brand-50/60 transition group flex items-center gap-2.5"
+            >
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs shrink-0">
+                SR
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold text-xs text-brand-900 truncate">Siti Rahma</span>
+                  <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Finance</span>
+                </div>
+                <div class="text-[11px] text-brand-500 font-mono truncate">siti.rahma / user123</div>
+              </div>
+            </button>
+
+            <!-- User 2: Bambang (Direksi) -->
+            <button 
+              type="button" 
+              onclick="fillAccount('bambang.w', 'user123', this)" 
+              class="account-card text-left p-2.5 rounded-xl border border-brand-200 hover:border-brand-400 bg-white hover:bg-brand-50/60 transition group flex items-center gap-2.5"
+            >
+              <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0">
+                BW
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold text-xs text-brand-900 truncate">Bambang W.</span>
+                  <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">Direksi</span>
+                </div>
+                <div class="text-[11px] text-brand-500 font-mono truncate">bambang.w / user123</div>
+              </div>
+            </button>
+
+            <!-- User 3: Anisa (HRD) -->
+            <button 
+              type="button" 
+              onclick="fillAccount('anisa.m', 'user123', this)" 
+              class="account-card text-left p-2.5 rounded-xl border border-brand-200 hover:border-brand-400 bg-white hover:bg-brand-50/60 transition group flex items-center gap-2.5"
+            >
+              <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-800 flex items-center justify-center font-bold text-xs shrink-0">
+                AM
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold text-xs text-brand-900 truncate">Anisa Melani</span>
+                  <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">HRD</span>
+                </div>
+                <div class="text-[11px] text-brand-500 font-mono truncate">anisa.m / user123</div>
+              </div>
+            </button>
+
+          </div>
         </div>
-      </div>
 
-      <button type="submit" class="btn-login" id="loginBtn">
-        <span id="btnText">Masuk</span>
-      </button>
-    </form>
-
-    <div class="accounts-info">
-      <p>Akun Demo — Klik untuk isi otomatis</p>
-
-      <div class="account-row" onclick="fillAccount('admin','admin123')">
-        <div class="account-info">
-          <div class="account-name">Ahmad (IT Lead)</div>
-          <div class="account-desc">admin / admin123</div>
-        </div>
-        <span class="role-badge admin">Admin</span>
-      </div>
-
-      <div class="account-row" onclick="fillAccount('siti.rahma','user123')">
-        <div class="account-info">
-          <div class="account-name">Siti Rahmawati</div>
-          <div class="account-desc">siti.rahma / user123</div>
-        </div>
-        <span class="role-badge user">User</span>
-      </div>
-
-      <div class="account-row" onclick="fillAccount('bambang.w','user123')">
-        <div class="account-info">
-          <div class="account-name">Bambang Wijaya</div>
-          <div class="account-desc">bambang.w / user123</div>
-        </div>
-        <span class="role-badge user">User</span>
-      </div>
-
-      <div class="account-row" onclick="fillAccount('anisa.m','user123')">
-        <div class="account-info">
-          <div class="account-name">Anisa Melani</div>
-          <div class="account-desc">anisa.m / user123</div>
-        </div>
-        <span class="role-badge user">User</span>
-      </div>
-
-      <div class="account-row" onclick="fillAccount('hendra.s','user123')">
-        <div class="account-info">
-          <div class="account-name">Hendra Saputra</div>
-          <div class="account-desc">hendra.s / user123</div>
-        </div>
-        <span class="role-badge user">User</span>
       </div>
     </div>
+
   </div>
 
   <script>
-    // Auto-redirect if already logged in
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Check if already authenticated
     (async () => {
       try {
         const r = await fetch('/api/auth/me');
@@ -318,23 +325,30 @@
       } catch {}
     })();
 
-    function fillAccount(username, password) {
+    // 1-Click Fill Helper
+    function fillAccount(username, password, el) {
+      document.querySelectorAll('.account-card').forEach(c => c.classList.remove('account-card-active'));
+      if (el) el.classList.add('account-card-active');
+
       document.getElementById('username').value = username;
       document.getElementById('password').value = password;
-      document.getElementById('username').focus();
+      document.getElementById('errorBox').classList.add('hidden');
+      document.getElementById('password').focus();
     }
 
-    // Toggle password visibility
+    // Toggle Password Visibility
     const pwInput = document.getElementById('password');
-    document.getElementById('togglePw').addEventListener('click', () => {
+    const eyeBtn = document.getElementById('togglePw');
+    eyeBtn.addEventListener('click', () => {
       const isHidden = pwInput.type === 'password';
       pwInput.type = isHidden ? 'text' : 'password';
-      document.getElementById('eyeIcon').innerHTML = isHidden
-        ? `<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>`
-        : `<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`;
+      eyeBtn.innerHTML = isHidden 
+        ? '<i data-lucide="eye-off" class="w-4 h-4"></i>' 
+        : '<i data-lucide="eye" class="w-4 h-4"></i>';
+      lucide.createIcons();
     });
 
-    // Login form submit
+    // Form Submit Handler
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const username = document.getElementById('username').value.trim();
@@ -344,9 +358,7 @@
       const loginBtn = document.getElementById('loginBtn');
       const btnText = document.getElementById('btnText');
 
-      errorBox.classList.remove('show');
-
-      // Show loading
+      errorBox.classList.add('hidden');
       loginBtn.disabled = true;
       btnText.innerHTML = '<span class="spinner"></span>';
 
@@ -359,19 +371,18 @@
         const data = await res.json();
 
         if (data.success) {
-          // Redirect based on role
           window.location.href = data.data.role === 'admin' ? '/admin' : '/user';
         } else {
-          errorMsg.textContent = data.message || 'Login gagal. Periksa kembali username dan password.';
-          errorBox.classList.add('show');
+          errorMsg.textContent = data.message || 'Username atau kata sandi tidak valid.';
+          errorBox.classList.remove('hidden');
           loginBtn.disabled = false;
-          btnText.textContent = 'Masuk';
+          btnText.textContent = 'Masuk ke Portal';
         }
       } catch (err) {
-        errorMsg.textContent = 'Gagal terhubung ke server. Coba lagi.';
-        errorBox.classList.add('show');
+        errorMsg.textContent = 'Gagal terhubung ke server. Pastikan server aktif.';
+        errorBox.classList.remove('hidden');
         loginBtn.disabled = false;
-        btnText.textContent = 'Masuk';
+        btnText.textContent = 'Masuk ke Portal';
       }
     });
   </script>

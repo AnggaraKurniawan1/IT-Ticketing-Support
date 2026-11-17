@@ -25,11 +25,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     currentUser = meJson.data;
 
-    // Populate navbar
+    // Populate navbar & user identity
     const navName = document.getElementById('navUserName');
     const navDept = document.getElementById('navUserDept');
+    const userInitials = document.getElementById('userAvatarInitials');
+    
     if (navName) navName.textContent = currentUser.full_name;
     if (navDept) navDept.textContent = currentUser.department || 'Karyawan';
+    if (userInitials) {
+      userInitials.textContent = getInitials(currentUser.full_name);
+    }
   } catch (e) {
     window.location.href = '/login';
     return;
@@ -58,9 +63,9 @@ async function fetchUserTickets(showLoading = true) {
 
   if (showLoading && container) {
     container.innerHTML = `
-      <div class="p-10 text-center text-slate-400">
-        <i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-slate-400 mb-2"></i>
-        <p class="text-xs">Memuat data tiket...</p>
+      <div class="p-12 text-center text-brand-400">
+        <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-brand-400 mb-2"></i>
+        <p class="text-xs font-medium">Memuat data tiket...</p>
       </div>
     `;
     lucide.createIcons();
@@ -105,13 +110,15 @@ function renderUserTickets(tickets) {
 
   if (tickets.length === 0) {
     container.innerHTML = `
-      <div class="p-10 text-center space-y-2.5">
-        <div class="w-10 h-10 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto">
-          <i data-lucide="inbox" class="w-5 h-5"></i>
+      <div class="p-12 text-center space-y-3">
+        <div class="w-12 h-12 bg-brand-100 text-brand-400 rounded-2xl flex items-center justify-center mx-auto">
+          <i data-lucide="inbox" class="w-6 h-6"></i>
         </div>
-        <p class="text-xs font-semibold text-slate-700">Belum ada tiket pada kategori ini</p>
-        <p class="text-[11px] text-slate-400">Silakan ajukan tiket baru bila Anda mengalami kendala komputer atau jaringan.</p>
-        <button onclick="openCreateTicketModal()" class="inline-flex items-center space-x-1.5 bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs px-3.5 py-1.5 rounded-lg transition">
+        <div>
+          <h4 class="text-sm font-bold text-brand-900">Belum Ada Tiket pada Kategori Ini</h4>
+          <p class="text-[11px] text-brand-500 mt-0.5">Semua kendala yang Anda laporkan akan tercatat rapi di sini.</p>
+        </div>
+        <button onclick="openCreateTicketModal()" class="inline-flex items-center space-x-1.5 bg-brand-900 hover:bg-brand-800 text-white font-semibold text-xs px-4 py-2 rounded-xl transition shadow-sm">
           <i data-lucide="plus" class="w-3.5 h-3.5"></i>
           <span>Ajukan Tiket Sekarang</span>
         </button>
@@ -125,46 +132,64 @@ function renderUserTickets(tickets) {
   tickets.forEach(ticket => {
     const statusBadge = getStatusBadge(ticket.status);
     const priorityBadge = getPriorityBadge(ticket.priority);
+    const hasAssignee = ticket.assigned_to && ticket.assigned_to !== 'Belum Ditugaskan';
 
     html += `
-      <div class="p-4 hover:bg-slate-50/80 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer" onclick="openDetailTicket(${ticket.id})">
-        <div class="space-y-1 flex-1">
+      <div class="p-4 sm:p-5 hover:bg-brand-50/70 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 cursor-pointer group" onclick="openDetailTicket(${ticket.id})">
+        
+        <div class="space-y-1.5 flex-1 min-w-0">
+          
+          <!-- Badges Bar -->
           <div class="flex flex-wrap items-center gap-2">
-            <span class="font-mono text-xs font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+            <span class="font-mono text-[11px] font-bold text-brand-800 bg-brand-100 px-2 py-0.5 rounded-md border border-brand-200">
               #${ticket.ticket_number}
             </span>
-            ${priorityBadge}
             ${statusBadge}
-            <span class="text-slate-500 text-xs font-medium">
+            ${priorityBadge}
+            <span class="text-brand-500 text-[11px] font-medium flex items-center gap-1">
+              <i data-lucide="tag" class="w-3 h-3 text-brand-400"></i>
               ${ticket.category}
             </span>
           </div>
 
-          <h3 class="text-sm font-semibold text-slate-900 hover:text-slate-700 transition">
+          <!-- Subject -->
+          <h3 class="text-xs sm:text-sm font-bold text-brand-950 group-hover:text-brand-800 transition line-clamp-1">
             ${escapeHtml(ticket.subject)}
           </h3>
 
-          <p class="text-xs text-slate-500 line-clamp-1">
+          <!-- Description snippet -->
+          <p class="text-xs text-brand-500 line-clamp-1 leading-relaxed">
             ${escapeHtml(ticket.description)}
           </p>
 
-          <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-400 pt-0.5">
-            <span>Pelapor: <strong class="text-slate-600 font-medium">${escapeHtml(ticket.requester_name)}</strong> (${escapeHtml(ticket.department)})</span>
+          <!-- Footer Metadata -->
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-[11px] text-brand-400 pt-0.5">
+            <span class="flex items-center gap-1">
+              <i data-lucide="calendar" class="w-3 h-3"></i>
+              <span>${formatDateTime(ticket.created_at)}</span>
+            </span>
             <span>•</span>
-            <span>${formatDateTime(ticket.created_at)}</span>
+            <span class="flex items-center gap-1">
+              <i data-lucide="map-pin" class="w-3 h-3"></i>
+              <span>${escapeHtml(ticket.location || 'Ruang Kerja')}</span>
+            </span>
             <span>•</span>
-            <span class="${ticket.assigned_to !== 'Belum Ditugaskan' ? 'text-slate-700 font-medium' : 'text-slate-400'}">
-              Teknisi: ${escapeHtml(ticket.assigned_to)}
+            <span class="flex items-center gap-1.5 ${hasAssignee ? 'text-brand-700 font-semibold' : 'text-brand-400'}">
+              <i data-lucide="user-check" class="w-3 h-3"></i>
+              <span>Teknisi: ${escapeHtml(ticket.assigned_to)}</span>
             </span>
           </div>
+
         </div>
 
-        <div class="flex items-center space-x-2 self-end sm:self-center">
-          <button onclick="event.stopPropagation(); openDetailTicket(${ticket.id})" class="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium transition shadow-2xs">
+        <!-- Action / Arrow -->
+        <div class="flex items-center space-x-2 shrink-0 self-end sm:self-center">
+          <span class="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg border border-brand-200 bg-white group-hover:bg-brand-900 group-hover:text-white group-hover:border-brand-900 text-brand-700 text-xs font-semibold transition">
             <span>Detail</span>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400"></i>
-          </button>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-brand-400 group-hover:text-white transition"></i>
+          </span>
         </div>
+
       </div>
     `;
   });
@@ -203,9 +228,9 @@ function filterUserStatus(status) {
     const btn = document.getElementById(`btnUserStatus${b}`);
     if (btn) {
       if ((b === 'InProgress' && status === 'In Progress') || b === status) {
-        btn.className = 'px-2.5 py-1 rounded-md bg-white shadow-2xs text-slate-900 font-medium';
+        btn.className = 'px-2.5 py-1 rounded-md bg-white shadow-2xs text-brand-950 font-bold transition';
       } else {
-        btn.className = 'px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900';
+        btn.className = 'px-2.5 py-1 rounded-md text-brand-600 hover:text-brand-950 transition';
       }
     }
   });
@@ -217,7 +242,7 @@ function debounceUserSearch() {
   clearTimeout(userSearchTimeout);
   userSearchTimeout = setTimeout(() => {
     fetchUserTickets(true);
-  }, 350);
+  }, 300);
 }
 
 // Modal Create Ticket
@@ -228,8 +253,11 @@ function openCreateTicketModal() {
   if (currentUser) {
     const nameEl = document.getElementById('formUserName');
     const metaEl = document.getElementById('formUserMeta');
+    const avatarEl = document.getElementById('formUserAvatar');
+    
     if (nameEl) nameEl.textContent = currentUser.full_name;
-    if (metaEl) metaEl.textContent = `${currentUser.department || '—'}  ·  ${currentUser.email}`;
+    if (metaEl) metaEl.textContent = `${currentUser.department || 'Karyawan'}  •  ${currentUser.email}`;
+    if (avatarEl) avatarEl.textContent = getInitials(currentUser.full_name);
   }
 
   document.getElementById('modalCreateTicket').classList.remove('hidden');
@@ -244,8 +272,6 @@ async function handleCreateTicketSubmit(event) {
   lucide.createIcons();
 
   const formData = new FormData();
-  // Nama, email, dept dari session — server akan pakai data session
-  // User hanya perlu isi: lokasi, kategori, prioritas, subjek, deskripsi
   formData.append('requester_name', currentUser?.full_name || '');
   formData.append('department', currentUser?.department || '');
   formData.append('requester_email', currentUser?.email || '');
@@ -273,7 +299,7 @@ async function handleCreateTicketSubmit(event) {
       Swal.fire({
         icon: 'success',
         title: 'Tiket Berhasil Diajukan',
-        html: `Nomor Tiket Anda: <b class="text-slate-900 font-mono text-base">${json.data.ticket_number}</b><br><span class="text-xs text-slate-500">Tim IT Support telah diberitahu dan akan segera menangani kendala Anda.</span>`,
+        html: `Nomor Tiket Anda: <b class="text-brand-950 font-mono text-base">${json.data.ticket_number}</b><br><span class="text-xs text-brand-500">Tim IT Support telah diberitahu dan akan segera menangani kendala Anda.</span>`,
         confirmButtonColor: '#0f172a'
       });
       fetchUserTickets(true);
@@ -294,7 +320,7 @@ async function handleCreateTicketSubmit(event) {
     });
   } finally {
     btn.disabled = false;
-    btn.innerHTML = `<i data-lucide="send" class="w-3.5 h-3.5"></i><span>Kirim Tiket</span>`;
+    btn.innerHTML = `<i data-lucide="send" class="w-3.5 h-3.5"></i><span>Kirim Tiket ke IT</span>`;
     lucide.createIcons();
   }
 }
@@ -316,11 +342,11 @@ async function openDetailTicket(ticketId) {
     document.getElementById('detailSubject').textContent = ticket.subject;
 
     const priorityBadge = document.getElementById('detailPriorityBadge');
-    priorityBadge.className = `text-[11px] px-2 py-0.2 rounded font-medium ${getPriorityColorClasses(ticket.priority)}`;
+    priorityBadge.className = `text-[10px] px-2 py-0.5 rounded font-semibold uppercase tracking-wider ${getPriorityColorClasses(ticket.priority)}`;
     priorityBadge.textContent = ticket.priority;
 
     const statusBadge = document.getElementById('detailStatusBadge');
-    statusBadge.className = `text-[11px] px-2 py-0.2 rounded font-medium ${getStatusColorClasses(ticket.status)}`;
+    statusBadge.className = `text-[10px] px-2 py-0.5 rounded font-semibold ${getStatusColorClasses(ticket.status)}`;
     statusBadge.textContent = ticket.status;
 
     document.getElementById('detailRequester').textContent = ticket.requester_name;
@@ -328,7 +354,7 @@ async function openDetailTicket(ticketId) {
     document.getElementById('detailContact').textContent = ticket.requester_phone || ticket.requester_email || '-';
     document.getElementById('detailLocation').textContent = ticket.location || 'Tidak dicantumkan';
     document.getElementById('detailCategory').textContent = ticket.category;
-    document.getElementById('detailCreatedAt').textContent = `Dibuat: ${formatDateTime(ticket.created_at)}`;
+    document.getElementById('detailCreatedAt').textContent = `${formatDateTime(ticket.created_at)}`;
     document.getElementById('detailAssignee').textContent = ticket.assigned_to;
     document.getElementById('detailResolvedAt').textContent = ticket.resolved_at ? `Selesai: ${formatDateTime(ticket.resolved_at)}` : '';
 
@@ -342,15 +368,15 @@ async function openDetailTicket(ticketId) {
       const isImg = /\.(jpg|jpeg|png|gif)$/i.test(ticket.attachment);
       if (isImg) {
         attContent.innerHTML = `
-          <a href="${ticket.attachment}" target="_blank" class="block group relative rounded-lg overflow-hidden border border-slate-200">
+          <a href="${ticket.attachment}" target="_blank" class="block group relative rounded-xl overflow-hidden border border-brand-200">
             <img src="${ticket.attachment}" alt="Bukti Masalah" class="max-h-48 rounded object-cover">
           </a>
         `;
       } else {
         attContent.innerHTML = `
-          <a href="${ticket.attachment}" target="_blank" class="inline-flex items-center space-x-1.5 text-slate-700 hover:text-slate-900 font-medium text-xs bg-slate-50 px-2.5 py-1.5 rounded border border-slate-200">
-            <i data-lucide="file" class="w-3.5 h-3.5 text-slate-500"></i>
-            <span>Buka Lampiran</span>
+          <a href="${ticket.attachment}" target="_blank" class="inline-flex items-center space-x-1.5 text-brand-800 hover:text-brand-950 font-semibold text-xs bg-white px-3 py-2 rounded-lg border border-brand-200 shadow-2xs">
+            <i data-lucide="file-text" class="w-4 h-4 text-brand-500"></i>
+            <span>Buka Berkas Lampiran</span>
           </a>
         `;
       }
@@ -382,8 +408,8 @@ function renderActivitiesTimeline(activities) {
 
   if (activities.length === 0) {
     container.innerHTML = `
-      <div class="text-center py-3 text-slate-400 text-xs">
-        Belum ada catatan aktivitas pada tiket ini.
+      <div class="text-center py-4 text-brand-400 text-xs">
+        Belum ada diskusi pada tiket ini.
       </div>
     `;
     return;
@@ -391,38 +417,30 @@ function renderActivitiesTimeline(activities) {
 
   let html = '';
   activities.forEach(act => {
-    let icon = 'message-circle';
-    let badgeColor = 'bg-slate-100 text-slate-600 border border-slate-200';
-
-    if (act.action_type === 'created') {
-      icon = 'plus';
-    } else if (act.action_type === 'status_change') {
-      icon = 'refresh-cw';
-    } else if (act.action_type === 'assignment') {
-      icon = 'user-check';
-    } else if (act.action_type === 'resolved') {
-      icon = 'check';
-      badgeColor = 'bg-slate-900 text-white';
-    }
-
+    let icon = 'message-square';
     const isAdmin = act.author_role === 'admin' || act.author_role === 'system';
 
+    if (act.action_type === 'created') icon = 'plus-circle';
+    else if (act.action_type === 'status_change') icon = 'refresh-cw';
+    else if (act.action_type === 'assignment') icon = 'user-check';
+    else if (act.action_type === 'resolved') icon = 'check-circle-2';
+
     html += `
-      <div class="flex space-x-2 text-xs">
-        <div class="w-6 h-6 rounded-full ${isAdmin ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-700'} flex items-center justify-center shrink-0 mt-0.5 text-xs">
-          <i data-lucide="${icon}" class="w-3 h-3"></i>
+      <div class="flex space-x-2.5 text-xs">
+        <div class="w-7 h-7 rounded-lg ${isAdmin ? 'bg-brand-900 text-white' : 'bg-brand-200 text-brand-800'} flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold shadow-2xs">
+          <i data-lucide="${icon}" class="w-3.5 h-3.5"></i>
         </div>
-        <div class="flex-1 bg-white p-2.5 rounded-lg border border-slate-200">
+        <div class="flex-1 bg-white p-3 rounded-xl border border-brand-200 shadow-2xs">
           <div class="flex items-center justify-between mb-1">
-            <span class="font-semibold text-slate-800 flex items-center space-x-1">
+            <span class="font-bold text-brand-950 flex items-center space-x-1.5">
               <span>${escapeHtml(act.author_name)}</span>
-              <span class="text-[9px] uppercase px-1.5 py-0.2 rounded font-medium ${badgeColor}">
+              <span class="text-[9px] uppercase px-1.5 py-0.2 rounded font-semibold ${isAdmin ? 'bg-brand-900 text-white' : 'bg-brand-100 text-brand-700'}">
                 ${isAdmin ? 'IT Support' : 'Pelapor'}
               </span>
             </span>
-            <span class="text-[10px] text-slate-400">${formatDateTime(act.created_at)}</span>
+            <span class="text-[10px] text-brand-400">${formatDateTime(act.created_at)}</span>
           </div>
-          <p class="text-slate-600 leading-relaxed whitespace-pre-line">${escapeHtml(act.message)}</p>
+          <p class="text-brand-700 leading-relaxed whitespace-pre-line text-xs">${escapeHtml(act.message)}</p>
         </div>
       </div>
     `;
@@ -445,7 +463,7 @@ async function submitTicketComment() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        author_name: currentDetailTicket.requester_name || 'Pelapor',
+        author_name: currentUser?.full_name || 'Pelapor',
         author_role: 'user',
         message: message,
         action_type: 'public_comment'
@@ -475,46 +493,88 @@ function closeModal(modalId) {
   if (modal) modal.classList.add('hidden');
 }
 
+// ── SEMANTIC BADGES WITH TASTE (ANTI-SLOP) ───────────────────
 function getStatusBadge(status) {
-  const color = getStatusColorClasses(status);
-  return `<span class="inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded ${color}">${status}</span>`;
+  switch (status) {
+    case 'Open':
+      return `<span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+        <span>Open</span>
+      </span>`;
+    case 'In Progress':
+      return `<span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200">
+        <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>
+        <span>In Progress</span>
+      </span>`;
+    case 'Pending User':
+      return `<span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-800 border border-purple-200">
+        <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+        <span>Pending User</span>
+      </span>`;
+    case 'Resolved':
+      return `<span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+        <span>Resolved</span>
+      </span>`;
+    case 'Closed':
+      return `<span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-brand-100 text-brand-600 border border-brand-200">
+        <span>Closed</span>
+      </span>`;
+    default:
+      return `<span class="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded bg-brand-100 text-brand-700">${status}</span>`;
+  }
 }
 
 function getStatusColorClasses(status) {
   switch (status) {
-    case 'Open':
-      return 'bg-slate-100 text-slate-700 border border-slate-200';
-    case 'In Progress':
-      return 'bg-slate-800 text-white';
-    case 'Pending User':
-      return 'bg-slate-50 text-slate-600 border border-slate-200';
-    case 'Resolved':
-      return 'bg-slate-900 text-white';
-    case 'Closed':
-      return 'bg-slate-100 text-slate-500 border border-slate-200';
-    default:
-      return 'bg-slate-100 text-slate-700 border border-slate-200';
+    case 'Open': return 'bg-amber-50 text-amber-800 border border-amber-200';
+    case 'In Progress': return 'bg-sky-50 text-sky-800 border border-sky-200';
+    case 'Pending User': return 'bg-purple-50 text-purple-800 border border-purple-200';
+    case 'Resolved': return 'bg-emerald-50 text-emerald-800 border border-emerald-200';
+    case 'Closed': return 'bg-brand-100 text-brand-600 border border-brand-200';
+    default: return 'bg-brand-100 text-brand-700 border border-brand-200';
   }
 }
 
 function getPriorityBadge(priority) {
-  const color = getPriorityColorClasses(priority);
-  return `<span class="inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded ${color}">${priority}</span>`;
+  switch (priority) {
+    case 'Critical':
+      return `<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200 uppercase tracking-wider">
+        <i data-lucide="alert-octagon" class="w-3 h-3"></i>
+        <span>Critical</span>
+      </span>`;
+    case 'High':
+      return `<span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wider">
+        <span>High</span>
+      </span>`;
+    case 'Medium':
+      return `<span class="inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-md bg-brand-100 text-brand-700 border border-brand-200">
+        <span>Medium</span>
+      </span>`;
+    case 'Low':
+      return `<span class="inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-md bg-brand-50 text-brand-500 border border-brand-200">
+        <span>Low</span>
+      </span>`;
+    default:
+      return `<span class="inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-md bg-brand-50 text-brand-600">${priority}</span>`;
+  }
 }
 
 function getPriorityColorClasses(priority) {
   switch (priority) {
-    case 'Critical':
-      return 'text-red-700 bg-red-50 border border-red-200';
-    case 'High':
-      return 'text-amber-800 bg-amber-50 border border-amber-200';
-    case 'Medium':
-      return 'text-slate-700 bg-slate-100 border border-slate-200';
-    case 'Low':
-      return 'text-slate-500 bg-slate-50 border border-slate-200';
-    default:
-      return 'text-slate-600 bg-slate-50 border border-slate-200';
+    case 'Critical': return 'text-rose-700 bg-rose-50 border border-rose-200';
+    case 'High': return 'text-amber-700 bg-amber-50 border border-amber-200';
+    case 'Medium': return 'text-brand-700 bg-brand-100 border border-brand-200';
+    case 'Low': return 'text-brand-500 bg-brand-50 border border-brand-200';
+    default: return 'text-brand-600 bg-brand-50 border border-brand-200';
   }
+}
+
+function getInitials(name) {
+  if (!name) return 'U';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
 function formatDateTime(str) {

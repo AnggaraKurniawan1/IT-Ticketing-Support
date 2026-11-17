@@ -3,25 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Admin - IT Support Console</title>
+  <title>Dashboard Admin — IT Support Operations Console</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#020617',
+            }
+          }
+        }
+      }
     }
+  </script>
+
+  <style>
+    body {
+      background-color: #f8fafc;
+      background-image: radial-gradient(at 0% 0%, rgba(241, 245, 249, 0.8) 0px, transparent 50%);
+    }
+
     .scrollbar-thin::-webkit-scrollbar {
       width: 5px;
       height: 5px;
@@ -36,48 +66,74 @@
     .scrollbar-thin::-webkit-scrollbar-thumb:hover {
       background: #94a3b8;
     }
+
+    .pulse-dot-green {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: #10b981;
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulse-g 2s infinite;
+    }
+
+    @keyframes pulse-g {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased text-sm">
+<body class="text-brand-900 min-h-screen flex flex-col antialiased text-xs font-sans selection:bg-brand-900 selection:text-white">
 
   <!-- ================= TOP NAVBAR ================= -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+  <header class="bg-white/90 backdrop-blur-md border-b border-brand-200/90 sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-14">
         
         <!-- Logo & Title -->
         <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white">
+          <div class="w-8 h-8 rounded-lg bg-brand-950 flex items-center justify-center text-white shadow-sm shadow-brand-950/20">
             <i data-lucide="shield" class="w-4 h-4"></i>
           </div>
           <div class="flex items-center space-x-2">
-            <span class="font-bold text-slate-900 text-sm tracking-tight">IT Support Console</span>
-            <span class="text-slate-300 text-xs">•</span>
-            <span class="bg-slate-100 text-slate-700 text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-200">Admin Mode</span>
+            <span class="font-bold text-brand-950 text-sm tracking-tight">IT Support Console</span>
+            <span class="text-brand-300 text-xs">•</span>
+            <span class="bg-brand-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+              Admin Mode
+            </span>
           </div>
         </div>
 
-        <!-- Right Actions -->
-        <div class="flex items-center space-x-2.5">
-          <button onclick="refreshAdminData()" title="Refresh Data" class="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 transition">
+        <!-- Live Status, Clock & Actions -->
+        <div class="flex items-center space-x-3">
+          
+          <!-- Live Time & Server Status -->
+          <div class="hidden md:flex items-center gap-2.5 px-3 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-700 text-[11px] font-mono">
+            <span class="pulse-dot-green"></span>
+            <span id="liveClock">--:--:-- WIB</span>
+          </div>
+
+          <button onclick="refreshAdminData()" title="Segarkan Data" class="p-1.5 rounded-lg text-brand-500 hover:text-brand-900 hover:bg-brand-100 border border-brand-200 transition">
             <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="refreshIcon"></i>
           </button>
 
-          <!-- Admin user info -->
-          <div class="hidden sm:flex items-center space-x-2 pl-1 border-l border-slate-200">
-            <div class="text-right">
-              <div class="text-xs font-semibold text-slate-800" id="navAdminName">...</div>
-              <div class="text-[10px] text-slate-400">IT Support Admin</div>
+          <!-- Admin Profile Pill -->
+          <div class="flex items-center space-x-2 pl-2 border-l border-brand-200">
+            <div class="w-7 h-7 rounded-full bg-brand-900 text-white flex items-center justify-center font-bold text-[11px]">
+              IT
             </div>
-            <div class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-white">
-              <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+            <div class="hidden sm:block text-left">
+              <div class="text-xs font-bold text-brand-950 leading-tight" id="navAdminName">IT Support Lead</div>
+              <div class="text-[10px] text-brand-400 font-mono leading-tight">Admin Level 1</div>
             </div>
           </div>
 
-          <button onclick="handleLogout()" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-slate-600 text-xs font-medium transition">
-            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-            <span class="hidden sm:inline">Keluar</span>
+          <!-- Logout Button -->
+          <button onclick="handleLogout()" title="Keluar dari akun admin" class="p-1.5 rounded-lg text-brand-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
           </button>
+
         </div>
 
       </div>
@@ -85,134 +141,171 @@
   </header>
 
   <!-- ================= MAIN CONTENT ================= -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-    <!-- Admin Top Bar -->
-    <div class="bg-white border border-slate-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <!-- TOP CONTROL BAR -->
+    <div class="bg-white border border-brand-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-lg font-bold text-slate-900">Manajemen & Pengendalian Tiket IT</h1>
-        <p class="text-xs text-slate-500 mt-0.5">Kelola seluruh kendala teknis, penugasan teknisi, update status pengerjaan, dan catatan solusi.</p>
+        <h1 class="text-lg sm:text-xl font-extrabold text-brand-950 tracking-tight">
+          Pusat Pengendalian & Manajemen Tiket IT
+        </h1>
+        <p class="text-xs text-brand-500 mt-1 max-w-2xl leading-relaxed">
+          Kelola seluruh eskalasi masalah teknis, penugasan teknisi, pembaruan status pengerjaan, dan pencatatan solusi resmi bagi karyawan.
+        </p>
       </div>
 
       <!-- Quick Action Buttons -->
       <div class="flex flex-wrap items-center gap-2">
-        <button onclick="openCreateTicketModal()" class="inline-flex items-center space-x-1.5 bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs px-3.5 py-2 rounded-lg transition shadow-2xs">
+        <button onclick="openCreateTicketModal()" class="inline-flex items-center space-x-1.5 bg-brand-900 hover:bg-brand-800 text-white font-semibold text-xs px-3.5 py-2 rounded-xl transition shadow-sm shadow-brand-900/10">
           <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-          <span>Tiket Manual</span>
+          <span>Tiket Manual (Walk-in)</span>
         </button>
         
-        <button onclick="exportCsv()" class="inline-flex items-center space-x-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-medium text-xs px-3.5 py-2 rounded-lg transition shadow-2xs">
-          <i data-lucide="download" class="w-3.5 h-3.5 text-slate-500"></i>
+        <button onclick="exportCsv()" class="inline-flex items-center space-x-1.5 bg-white hover:bg-brand-50 text-brand-700 border border-brand-200 font-semibold text-xs px-3.5 py-2 rounded-xl transition shadow-2xs">
+          <i data-lucide="download" class="w-3.5 h-3.5 text-brand-500"></i>
           <span>Ekspor CSV</span>
         </button>
 
-        <button onclick="resetSampleData()" title="Reset data simulasi contoh" class="inline-flex items-center space-x-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 font-medium text-xs px-3 py-2 rounded-lg transition">
+        <button onclick="resetSampleData()" title="Reset data simulasi ke awal" class="inline-flex items-center space-x-1.5 text-brand-500 hover:text-brand-900 hover:bg-brand-100 border border-brand-200 font-semibold text-xs px-3 py-2 rounded-xl transition">
           <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
           <span>Reset Demo</span>
         </button>
       </div>
     </div>
 
-    <!-- KPI Metric Cards Grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <!-- KPI METRIC CARDS (Bento Grid 6-Columns) -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
       
       <!-- Total -->
-      <div class="bg-white p-3.5 rounded-xl border border-slate-200">
-        <div class="text-xs text-slate-500">Total Tiket</div>
-        <div class="mt-1 text-2xl font-bold text-slate-900" id="statTotal">0</div>
-        <span class="text-[10px] text-slate-400">Seluruh tiket masuk</span>
+      <div class="bg-white p-4 rounded-xl border border-brand-200 hover:border-brand-300 transition shadow-2xs">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold text-brand-500 uppercase tracking-wider">Total Masuk</span>
+          <i data-lucide="inbox" class="w-3.5 h-3.5 text-brand-400"></i>
+        </div>
+        <div class="mt-2 text-2xl font-extrabold text-brand-950 font-mono tracking-tight" id="statTotal">0</div>
+        <div class="text-[10px] text-brand-400 mt-0.5">Seluruh laporan</div>
       </div>
 
       <!-- Open -->
-      <div class="bg-white p-3.5 rounded-xl border border-slate-200">
-        <div class="text-xs text-slate-500">Baru (Open)</div>
-        <div class="mt-1 text-2xl font-bold text-slate-900" id="statOpen">0</div>
-        <span class="text-[10px] text-slate-400">Butuh respon</span>
+      <div class="bg-white p-4 rounded-xl border border-brand-200 hover:border-amber-300 transition shadow-2xs">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Antrian Baru</span>
+          <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500"></i>
+        </div>
+        <div class="mt-2 text-2xl font-extrabold text-amber-800 font-mono tracking-tight" id="statOpen">0</div>
+        <div class="text-[10px] text-brand-400 mt-0.5">Butuh penugasan</div>
       </div>
 
       <!-- In Progress -->
-      <div class="bg-white p-3.5 rounded-xl border border-slate-200">
-        <div class="text-xs text-slate-500">Sedang Diproses</div>
-        <div class="mt-1 text-2xl font-bold text-slate-900" id="statInProgress">0</div>
-        <span class="text-[10px] text-slate-400">Dalam pengerjaan</span>
+      <div class="bg-white p-4 rounded-xl border border-brand-200 hover:border-sky-300 transition shadow-2xs">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold text-sky-700 uppercase tracking-wider">Diproses</span>
+          <i data-lucide="wrench" class="w-3.5 h-3.5 text-sky-500"></i>
+        </div>
+        <div class="mt-2 text-2xl font-extrabold text-sky-800 font-mono tracking-tight" id="statInProgress">0</div>
+        <div class="text-[10px] text-brand-400 mt-0.5">Dalam pengerjaan</div>
       </div>
 
       <!-- Critical Active -->
-      <div class="bg-white p-3.5 rounded-xl border border-slate-200">
-        <div class="text-xs text-slate-500">Kritis / Urgent</div>
-        <div class="mt-1 text-2xl font-bold text-slate-900" id="statCritical">0</div>
-        <span class="text-[10px] text-slate-400">Prioritas utama</span>
+      <div class="bg-white p-4 rounded-xl border border-brand-200 hover:border-rose-300 transition shadow-2xs">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold text-rose-700 uppercase tracking-wider">Kritis / Urgent</span>
+          <i data-lucide="alert-octagon" class="w-3.5 h-3.5 text-rose-500"></i>
+        </div>
+        <div class="mt-2 text-2xl font-extrabold text-rose-800 font-mono tracking-tight" id="statCritical">0</div>
+        <div class="text-[10px] text-brand-400 mt-0.5">Prioritas darurat</div>
       </div>
 
       <!-- Resolved -->
-      <div class="bg-white p-3.5 rounded-xl border border-slate-200">
-        <div class="text-xs text-slate-500">Selesai (Resolved)</div>
-        <div class="mt-1 text-2xl font-bold text-slate-900" id="statResolved">0</div>
-        <span class="text-[10px] text-slate-400">Solusi terkirim</span>
+      <div class="bg-white p-4 rounded-xl border border-brand-200 hover:border-emerald-300 transition shadow-2xs">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Terselesaikan</span>
+          <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500"></i>
+        </div>
+        <div class="mt-2 text-2xl font-extrabold text-emerald-800 font-mono tracking-tight" id="statResolved">0</div>
+        <div class="text-[10px] text-brand-400 mt-0.5">Solusi terkonfirmasi</div>
       </div>
 
       <!-- Resolution Rate -->
-      <div class="bg-white p-3.5 rounded-xl border border-slate-200">
-        <div class="text-xs text-slate-500">Tingkat Solusi</div>
-        <div class="mt-1 text-2xl font-bold text-slate-900" id="statRate">0%</div>
-        <span class="text-[10px] text-slate-400">Rasio selesai</span>
+      <div class="bg-white p-4 rounded-xl border border-brand-200 hover:border-brand-300 transition shadow-2xs">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold text-brand-500 uppercase tracking-wider">SLA Rate</span>
+          <i data-lucide="trending-up" class="w-3.5 h-3.5 text-brand-500"></i>
+        </div>
+        <div class="mt-2 text-2xl font-extrabold text-brand-950 font-mono tracking-tight" id="statRate">0%</div>
+        <div class="text-[10px] text-brand-400 mt-0.5">Tingkat resolusi</div>
       </div>
 
     </div>
 
-    <!-- Charts Section -->
+    <!-- CHARTS SECTION -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       
       <!-- Status Breakdown Chart -->
-      <div class="bg-white p-4 rounded-xl border border-slate-200">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-xs font-semibold text-slate-800">Distribusi Status</h3>
-          <span class="text-[11px] text-slate-400">Tiket aktif</span>
+      <div class="bg-white p-5 rounded-2xl border border-brand-200 shadow-xs flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <h3 class="text-xs font-bold text-brand-950">Distribusi Status Tiket</h3>
+            <p class="text-[10px] text-brand-400">Komposisi tiket aktif & selesai</p>
+          </div>
+          <span class="text-[10px] font-mono text-brand-400 px-2 py-0.5 rounded bg-brand-50 border border-brand-200">Real-time</span>
         </div>
-        <div class="h-48 relative flex items-center justify-center">
+        <div class="h-48 relative flex items-center justify-center my-auto">
           <canvas id="chartStatus"></canvas>
         </div>
       </div>
 
       <!-- Category Breakdown Chart -->
-      <div class="bg-white p-4 rounded-xl border border-slate-200 lg:col-span-2">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-xs font-semibold text-slate-800">Volume per Kategori Masalah</h3>
-          <span class="text-[11px] text-slate-400">Beban IT</span>
+      <div class="bg-white p-5 rounded-2xl border border-brand-200 shadow-xs lg:col-span-2 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <h3 class="text-xs font-bold text-brand-950">Volume Beban Berdasarkan Kategori Masalah</h3>
+            <p class="text-[10px] text-brand-400">Area kerja yang paling sering memerlukan dukungan</p>
+          </div>
+          <span class="text-[10px] font-mono text-brand-400 px-2 py-0.5 rounded bg-brand-50 border border-brand-200">Beban IT</span>
         </div>
-        <div class="h-48">
+        <div class="h-48 my-auto">
           <canvas id="chartCategory"></canvas>
         </div>
       </div>
 
     </div>
 
-    <!-- Admin Ticket Management Table & CRUD -->
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <!-- ADMIN TICKET MANAGEMENT TABLE (DATA-DENSE & CRUD) -->
+    <div class="bg-white rounded-2xl border border-brand-200 shadow-xs overflow-hidden">
       
-      <!-- Search & Filter Toolbar -->
-      <div class="p-4 border-b border-slate-200 space-y-3">
-        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      <!-- Search & Filters Toolbar -->
+      <div class="p-4 sm:p-5 border-b border-brand-200/80 space-y-3 bg-brand-50/40">
+        
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           
-          <!-- Quick Search -->
-          <div class="relative flex-1 max-w-sm">
-            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <input type="text" id="adminSearchInput" oninput="debounceAdminSearch()" placeholder="Cari tiket, nama, masalah..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 focus:bg-white transition">
+          <!-- Search Bar with shortcut hint -->
+          <div class="relative flex-1 max-w-md">
+            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-brand-400"></i>
+            <input 
+              type="text" 
+              id="adminSearchInput" 
+              oninput="debounceAdminSearch()" 
+              placeholder="Cari no. tiket, nama pelapor, departemen, atau subjek..." 
+              class="w-full pl-9 pr-14 py-2 text-xs bg-white border border-brand-200 rounded-lg placeholder:text-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition"
+            />
+            <span class="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded bg-brand-100 text-brand-500 font-mono text-[9px] pointer-events-none">
+              /
+            </span>
           </div>
 
-          <div class="text-xs text-slate-500">
-            Total <span id="adminTicketCount" class="font-semibold text-slate-800">0</span> tiket
+          <div class="text-xs text-brand-500 flex items-center gap-2">
+            <span>Menampilkan <strong id="adminTicketCount" class="text-brand-950 font-mono font-bold">0</strong> tiket</span>
           </div>
 
         </div>
 
-        <!-- Filter Dropdowns Row -->
+        <!-- Filter Dropdown Grid -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
           
-          <!-- Filter Status -->
           <div>
-            <label class="block text-[11px] font-medium text-slate-500 mb-1">Status</label>
-            <select id="adminFilterStatus" onchange="applyAdminFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-1 px-2 text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400">
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-500 mb-1">Status</label>
+            <select id="adminFilterStatus" onchange="applyAdminFilters()" class="w-full bg-white border border-brand-200 rounded-lg py-1.5 px-2.5 text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition font-medium">
               <option value="All">Semua Status</option>
               <option value="Open">Open</option>
               <option value="In Progress">In Progress</option>
@@ -222,22 +315,20 @@
             </select>
           </div>
 
-          <!-- Filter Prioritas -->
           <div>
-            <label class="block text-[11px] font-medium text-slate-500 mb-1">Prioritas</label>
-            <select id="adminFilterPriority" onchange="applyAdminFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-1 px-2 text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400">
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-500 mb-1">Prioritas</label>
+            <select id="adminFilterPriority" onchange="applyAdminFilters()" class="w-full bg-white border border-brand-200 rounded-lg py-1.5 px-2.5 text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition font-medium">
               <option value="All">Semua Prioritas</option>
-              <option value="Critical">Critical</option>
-              <option value="High">High</option>
-              <option value="Medium">Medium</option>
-              <option value="Low">Low</option>
+              <option value="Critical">Critical (Kritis)</option>
+              <option value="High">High (Tinggi)</option>
+              <option value="Medium">Medium (Sedang)</option>
+              <option value="Low">Low (Rendah)</option>
             </select>
           </div>
 
-          <!-- Filter Kategori -->
           <div>
-            <label class="block text-[11px] font-medium text-slate-500 mb-1">Kategori</label>
-            <select id="adminFilterCategory" onchange="applyAdminFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-1 px-2 text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400">
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-500 mb-1">Kategori</label>
+            <select id="adminFilterCategory" onchange="applyAdminFilters()" class="w-full bg-white border border-brand-200 rounded-lg py-1.5 px-2.5 text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition font-medium">
               <option value="All">Semua Kategori</option>
               <option value="Hardware">Hardware</option>
               <option value="Software">Software</option>
@@ -249,43 +340,43 @@
             </select>
           </div>
 
-          <!-- Filter Departemen -->
           <div>
-            <label class="block text-[11px] font-medium text-slate-500 mb-1">Departemen</label>
-            <select id="adminFilterDept" onchange="applyAdminFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-1 px-2 text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-400">
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-500 mb-1">Departemen</label>
+            <select id="adminFilterDept" onchange="applyAdminFilters()" class="w-full bg-white border border-brand-200 rounded-lg py-1.5 px-2.5 text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition font-medium">
               <option value="All">Semua Departemen</option>
               <option value="Finance & Accounting">Finance & Accounting</option>
-              <option value="Human Resources (HRD)">HRD</option>
-              <option value="Marketing & Kreatif">Marketing</option>
-              <option value="Sales & Commercial">Sales</option>
-              <option value="Operasional & Logistik">Operasional</option>
-              <option value="Direksi & Manajemen">Direksi</option>
+              <option value="Human Resources (HRD)">Human Resources (HRD)</option>
+              <option value="Marketing & Kreatif">Marketing & Kreatif</option>
+              <option value="Sales & Commercial">Sales & Commercial</option>
+              <option value="Operasional & Logistik">Operasional & Logistik</option>
+              <option value="Direksi & Manajemen">Direksi & Manajemen</option>
             </select>
           </div>
 
         </div>
+
       </div>
 
-      <!-- Responsive Clean Table -->
+      <!-- RESPONSIVE HIGH-CRAFT DATA TABLE -->
       <div class="overflow-x-auto scrollbar-thin">
         <table class="w-full text-left border-collapse text-xs">
           <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-medium">
-              <th class="py-2.5 px-3">No. Tiket</th>
-              <th class="py-2.5 px-3">Pelapor & Dept</th>
-              <th class="py-2.5 px-3">Subjek & Kategori</th>
-              <th class="py-2.5 px-3">Prioritas</th>
-              <th class="py-2.5 px-3">Status</th>
-              <th class="py-2.5 px-3">Teknisi</th>
-              <th class="py-2.5 px-3">Waktu</th>
-              <th class="py-2.5 px-3 text-center">Aksi (CRUD)</th>
+            <tr class="bg-brand-50/80 border-b border-brand-200 text-brand-500 font-bold uppercase tracking-wider text-[10px]">
+              <th class="py-3 px-3.5">No. Tiket</th>
+              <th class="py-3 px-3.5">Pelapor & Departemen</th>
+              <th class="py-3 px-3.5">Subjek & Kategori</th>
+              <th class="py-3 px-3.5">Prioritas</th>
+              <th class="py-3 px-3.5">Status Pengerjaan</th>
+              <th class="py-3 px-3.5">Teknisi Bertugas</th>
+              <th class="py-3 px-3.5">Waktu Masuk</th>
+              <th class="py-3 px-3.5 text-center">Tindakan</th>
             </tr>
           </thead>
-          <tbody id="adminTableBody" class="divide-y divide-slate-100">
+          <tbody id="adminTableBody" class="divide-y divide-brand-100">
             <tr>
-              <td colspan="8" class="text-center py-10 text-slate-400">
-                <i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-slate-400 mb-1"></i>
-                Memuat data tiket...
+              <td colspan="8" class="text-center py-12 text-brand-400">
+                <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-brand-400 mb-2"></i>
+                Memuat data tiket admin...
               </td>
             </tr>
           </tbody>
@@ -296,16 +387,16 @@
 
   </main>
 
-  <!-- ================= MODAL CREATE MANUAL TICKET ================= -->
-  <div id="modalCreateTicket" class="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-xl border border-slate-200 overflow-hidden">
+  <!-- ================= MODAL: CREATE MANUAL TICKET ================= -->
+  <div id="modalCreateTicket" class="fixed inset-0 z-50 bg-brand-950/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-brand-200 overflow-hidden">
       
-      <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+      <div class="px-5 py-4 border-b border-brand-200 flex items-center justify-between bg-brand-50/50">
         <div>
-          <h3 class="font-bold text-slate-900 text-sm">Buat Tiket Manual (Walk-in / Telepon)</h3>
-          <p class="text-[11px] text-slate-500">Catat permohonan bantuan atas nama karyawan</p>
+          <h3 class="font-bold text-brand-950 text-sm">Buat Tiket Manual (Walk-in / Telp)</h3>
+          <p class="text-[11px] text-brand-500">Catat permohonan yang diterima tim IT secara langsung</p>
         </div>
-        <button onclick="closeModal('modalCreateTicket')" class="text-slate-400 hover:text-slate-600 p-1 rounded-md transition">
+        <button onclick="closeModal('modalCreateTicket')" class="text-brand-400 hover:text-brand-700 p-1 rounded-lg hover:bg-brand-100 transition">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
@@ -315,13 +406,13 @@
         <!-- Pelapor & Dept -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block font-medium text-slate-700 mb-1">Nama Pelapor <span class="text-red-500">*</span></label>
-            <input type="text" id="inputRequesterName" required placeholder="Nama Karyawan" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 focus:bg-white text-xs">
+            <label class="block font-semibold text-brand-700 mb-1">Nama Lengkap Pelapor <span class="text-rose-500">*</span></label>
+            <input type="text" id="inputRequesterName" required placeholder="Nama Karyawan" class="w-full px-3 py-2 bg-brand-50/30 border border-brand-200 rounded-lg text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition text-xs">
           </div>
           <div>
-            <label class="block font-medium text-slate-700 mb-1">Departemen <span class="text-red-500">*</span></label>
-            <select id="inputDepartment" required class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 focus:bg-white text-xs">
-              <option value="">Pilih Departemen...</option>
+            <label class="block font-semibold text-brand-700 mb-1">Departemen <span class="text-rose-500">*</span></label>
+            <select id="inputDepartment" required class="w-full px-3 py-2 bg-brand-50/30 border border-brand-200 rounded-lg text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition text-xs font-medium">
+              <option value="">-- Pilih Departemen --</option>
               <option value="Finance & Accounting">Finance & Accounting</option>
               <option value="Human Resources (HRD)">Human Resources (HRD)</option>
               <option value="Marketing & Kreatif">Marketing & Kreatif</option>
@@ -338,25 +429,25 @@
         <!-- Kontak & Lokasi -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label class="block font-medium text-slate-700 mb-1">No. WhatsApp / Telp</label>
-            <input type="text" id="inputRequesterPhone" placeholder="0812xxxx" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 focus:bg-white text-xs">
+            <label class="block font-semibold text-brand-700 mb-1">No. WhatsApp / HP</label>
+            <input type="text" id="inputRequesterPhone" placeholder="0812xxxx" class="w-full px-3 py-2 bg-brand-50/30 border border-brand-200 rounded-lg text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition text-xs">
           </div>
           <div>
-            <label class="block font-medium text-slate-700 mb-1">Email Kantor</label>
-            <input type="email" id="inputRequesterEmail" placeholder="nama@perusahaan.co.id" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 focus:bg-white text-xs">
+            <label class="block font-semibold text-brand-700 mb-1">Email Kantor</label>
+            <input type="email" id="inputRequesterEmail" placeholder="nama@perusahaan.co.id" class="w-full px-3 py-2 bg-brand-50/30 border border-brand-200 rounded-lg text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition text-xs">
           </div>
           <div>
-            <label class="block font-medium text-slate-700 mb-1">Ruangan / Lantai</label>
-            <input type="text" id="inputLocation" placeholder="Contoh: Lt. 2 R. Pajak" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 focus:bg-white text-xs">
+            <label class="block font-semibold text-brand-700 mb-1">Ruangan / Lantai</label>
+            <input type="text" id="inputLocation" placeholder="Contoh: Lt. 2 Ruang Pajak" class="w-full px-3 py-2 bg-brand-50/30 border border-brand-200 rounded-lg text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition text-xs">
           </div>
         </div>
 
-        <!-- Kategori & Prioritas -->
+        <!-- Kategori & Urgensi -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block font-medium text-slate-700 mb-1">Kategori Masalah <span class="text-red-500">*</span></label>
-            <select id="inputCategory" required class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 focus:bg-white text-xs">
-              <option value="">Pilih Kategori...</option>
+            <label class="block font-semibold text-brand-700 mb-1">Kategori Masalah <span class="text-rose-500">*</span></label>
+            <select id="inputCategory" required class="w-full px-3 py-2 bg-brand-50/30 border border-brand-200 rounded-lg text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition text-xs font-medium">
+              <option value="">-- Pilih Kategori --</option>
               <option value="Hardware">Hardware (Laptop, PC, Monitor)</option>
               <option value="Software">Software (Windows, Office, Aplikasi)</option>
               <option value="Jaringan & Internet">Jaringan & Internet (WiFi, LAN)</option>
@@ -367,8 +458,8 @@
             </select>
           </div>
           <div>
-            <label class="block font-medium text-slate-700 mb-1">Tingkat Urgensi <span class="text-red-500">*</span></label>
-            <select id="inputPriority" required class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 focus:bg-white text-xs">
+            <label class="block font-semibold text-brand-700 mb-1">Tingkat Urgensi <span class="text-rose-500">*</span></label>
+            <select id="inputPriority" required class="w-full px-3 py-2 bg-brand-50/30 border border-brand-200 rounded-lg text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition text-xs font-medium">
               <option value="Low">Low (Rendah)</option>
               <option value="Medium" selected>Medium (Sedang)</option>
               <option value="High">High (Tinggi)</option>
@@ -379,36 +470,31 @@
 
         <!-- Tugaskan ke Teknisi -->
         <div>
-          <label class="block font-medium text-slate-700 mb-1">Tugaskan ke Teknisi (Assignee)</label>
-          <select id="inputAssignedTo" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 focus:bg-white text-xs">
+          <label class="block font-semibold text-brand-700 mb-1">Tugaskan ke Teknisi (Assignee)</label>
+          <select id="inputAssignedTo" class="w-full px-3 py-2 bg-brand-50/30 border border-brand-200 rounded-lg text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition text-xs font-medium">
             <option value="Belum Ditugaskan">-- Belum Ditugaskan --</option>
-            <option value="Ahmad (IT Lead)">Ahmad (IT Lead)</option>
-            <option value="Budi Santoso (Desktop Support)">Budi Santoso (Desktop Support)</option>
-            <option value="Dimas Pratama (Network & Sysadmin)">Dimas Pratama (Network & Sysadmin)</option>
-            <option value="Rian Hidayat (Hardware Specialist)">Rian Hidayat (Hardware Specialist)</option>
           </select>
         </div>
 
         <!-- Subjek Masalah -->
         <div>
-          <label class="block font-medium text-slate-700 mb-1">Subjek Masalah <span class="text-red-500">*</span></label>
-          <input type="text" id="inputSubject" required placeholder="Ringkasan kendala" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 focus:bg-white text-xs">
+          <label class="block font-semibold text-brand-700 mb-1">Subjek Masalah <span class="text-rose-500">*</span></label>
+          <input type="text" id="inputSubject" required placeholder="Ringkasan kendala" class="w-full px-3 py-2 bg-brand-50/30 border border-brand-200 rounded-lg text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition text-xs">
         </div>
 
         <!-- Deskripsi Detail -->
         <div>
-          <label class="block font-medium text-slate-700 mb-1">Deskripsi Detail Masalah <span class="text-red-500">*</span></label>
-          <textarea id="inputDescription" required rows="3" placeholder="Rincian keluhan karyawan..." class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 focus:bg-white text-xs"></textarea>
+          <label class="block font-semibold text-brand-700 mb-1">Deskripsi Detail Masalah <span class="text-rose-500">*</span></label>
+          <textarea id="inputDescription" required rows="3" placeholder="Rincian keluhan karyawan..." class="w-full px-3 py-2 bg-brand-50/30 border border-brand-200 rounded-lg text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition text-xs leading-relaxed"></textarea>
         </div>
 
-        <!-- Buttons -->
-        <div class="pt-2 border-t border-slate-200 flex items-center justify-end space-x-2">
-          <button type="button" onclick="closeModal('modalCreateTicket')" class="px-3.5 py-1.5 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 font-medium transition">
+        <div class="pt-3 border-t border-brand-200 flex items-center justify-end space-x-2">
+          <button type="button" onclick="closeModal('modalCreateTicket')" class="px-4 py-2 border border-brand-200 rounded-lg text-brand-700 hover:bg-brand-50 font-semibold transition">
             Batal
           </button>
-          <button type="submit" id="btnSubmitTicket" class="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-medium transition flex items-center space-x-1.5">
+          <button type="submit" id="btnSubmitTicket" class="px-5 py-2 bg-brand-900 hover:bg-brand-800 text-white rounded-lg font-semibold transition flex items-center space-x-1.5 shadow-sm shadow-brand-900/20">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-            <span>Simpan Tiket</span>
+            <span>Simpan Tiket Manual</span>
           </button>
         </div>
 
@@ -416,89 +502,102 @@
     </div>
   </div>
 
-  <!-- ================= MODAL MANAGE TICKET (ADMIN CRUD) ================= -->
-  <div id="modalDetailTicket" class="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-3 sm:p-4 hidden">
-    <div class="bg-white rounded-xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-xl border border-slate-200 overflow-hidden">
+  <!-- ================= MODAL: MANAGE TICKET (ADMIN CRUD CONSOLE) ================= -->
+  <div id="modalDetailTicket" class="fixed inset-0 z-50 bg-brand-950/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-brand-200 overflow-hidden">
       
-      <!-- Detail Header -->
-      <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
-        <div class="space-y-0.5">
-          <div class="flex items-center space-x-2">
-            <span id="detailTicketNumber" class="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">#TICK-0000</span>
-            <span id="detailPriorityBadge" class="text-[11px] px-2 py-0.2 rounded font-medium">Priority</span>
-            <span id="detailStatusBadge" class="text-[11px] px-2 py-0.2 rounded font-medium">Status</span>
+      <!-- Header -->
+      <div class="px-5 py-3.5 border-b border-brand-200 flex items-center justify-between bg-brand-50/40">
+        <div class="space-y-0.5 min-w-0 pr-2">
+          <div class="flex items-center gap-2">
+            <span id="detailTicketNumber" class="text-xs font-mono font-bold text-brand-800 bg-brand-100 px-2 py-0.5 rounded border border-brand-200">
+              #TICK-0000
+            </span>
+            <span id="detailPriorityBadge" class="text-[10px] px-2 py-0.5 rounded font-semibold uppercase tracking-wider">
+              Priority
+            </span>
+            <span id="detailStatusBadge" class="text-[10px] px-2 py-0.5 rounded font-semibold">
+              Status
+            </span>
           </div>
-          <h2 id="detailSubject" class="text-sm font-bold text-slate-900 line-clamp-1 mt-1">Subjek Tiket</h2>
+          <h2 id="detailSubject" class="text-sm font-bold text-brand-950 truncate mt-1">Subjek Tiket</h2>
         </div>
-        <button onclick="closeModal('modalDetailTicket')" class="text-slate-400 hover:text-slate-600 p-1 rounded-md transition">
+        <button onclick="closeModal('modalDetailTicket')" class="text-brand-400 hover:text-brand-700 p-1 rounded-lg hover:bg-brand-100 transition shrink-0">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <!-- Detail Body -->
+      <!-- Body -->
       <div class="flex-1 overflow-y-auto p-5 space-y-4 text-xs scrollbar-thin">
         
         <!-- Info Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-3.5 rounded-lg border border-slate-200">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-brand-50/60 p-3.5 rounded-xl border border-brand-200">
           <div>
-            <span class="text-slate-400 text-[10px] uppercase font-semibold">Pelapor</span>
-            <p id="detailRequester" class="font-medium text-slate-800 mt-0.5">-</p>
-            <p id="detailDepartment" class="text-slate-500 text-[11px]">-</p>
+            <span class="text-brand-400 text-[10px] uppercase font-bold tracking-wider">Pelapor</span>
+            <p id="detailRequester" class="font-bold text-brand-900 mt-0.5 truncate">-</p>
+            <p id="detailDepartment" class="text-brand-500 text-[11px] truncate">-</p>
           </div>
           <div>
-            <span class="text-slate-400 text-[10px] uppercase font-semibold">Kontak & Lokasi</span>
-            <p id="detailContact" class="font-medium text-slate-800 mt-0.5">-</p>
-            <p id="detailLocation" class="text-slate-500 text-[11px]">-</p>
+            <span class="text-brand-400 text-[10px] uppercase font-bold tracking-wider">Ruangan / Kontak</span>
+            <p id="detailLocation" class="font-medium text-brand-900 mt-0.5 truncate">-</p>
+            <p id="detailContact" class="text-brand-500 text-[11px] truncate">-</p>
           </div>
           <div>
-            <span class="text-slate-400 text-[10px] uppercase font-semibold">Kategori</span>
-            <p id="detailCategory" class="font-medium text-slate-800 mt-0.5">-</p>
-            <p id="detailCreatedAt" class="text-slate-500 text-[11px]">-</p>
+            <span class="text-brand-400 text-[10px] uppercase font-bold tracking-wider">Kategori</span>
+            <p id="detailCategory" class="font-semibold text-brand-900 mt-0.5 truncate">-</p>
+            <p id="detailCreatedAt" class="text-brand-400 text-[10px] truncate">-</p>
           </div>
           <div>
-            <span class="text-slate-400 text-[10px] uppercase font-semibold">Teknisi</span>
-            <p id="detailAssignee" class="font-medium text-slate-900 mt-0.5">-</p>
-            <p id="detailResolvedAt" class="text-slate-500 text-[11px]"></p>
+            <span class="text-brand-400 text-[10px] uppercase font-bold tracking-wider">Teknisi Bertugas</span>
+            <p id="detailAssignee" class="font-bold text-brand-950 mt-0.5 truncate">-</p>
+            <p id="detailResolvedAt" class="text-emerald-700 text-[10px] font-medium truncate"></p>
           </div>
         </div>
 
         <!-- Description -->
         <div>
-          <h4 class="font-semibold text-slate-700 text-xs mb-1.5">Deskripsi Keluhan User</h4>
-          <div id="detailDescription" class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-slate-700 leading-relaxed whitespace-pre-line text-xs">
+          <h4 class="font-bold text-brand-800 text-xs mb-1.5 flex items-center gap-1.5">
+            <i data-lucide="align-left" class="w-3.5 h-3.5 text-brand-400"></i>
+            <span>Deskripsi Masalah dari User</span>
+          </h4>
+          <div id="detailDescription" class="bg-brand-50/40 p-3 rounded-xl border border-brand-200 text-brand-800 leading-relaxed whitespace-pre-line text-xs">
             -
           </div>
         </div>
 
         <!-- Attachment -->
         <div id="detailAttachmentContainer" class="hidden">
-          <h4 class="font-semibold text-slate-700 text-xs mb-1.5">Lampiran Bukti</h4>
-          <div id="detailAttachmentContent" class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 inline-block">
-            <!-- Rendered by JS -->
-          </div>
+          <h4 class="font-bold text-brand-800 text-xs mb-1.5 flex items-center gap-1.5">
+            <i data-lucide="paperclip" class="w-3.5 h-3.5 text-brand-400"></i>
+            <span>Lampiran Bukti dari Pelapor</span>
+          </h4>
+          <div id="detailAttachmentContent" class="p-2.5 bg-brand-50/40 rounded-xl border border-brand-200 inline-block"></div>
         </div>
 
-        <!-- CRUD CONTROLS (PANEL PENGATURAN IT) -->
-        <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-3">
+        <!-- CRUD MANAGEMENT CONTROLS PANEL -->
+        <div class="p-4 rounded-xl bg-brand-50/70 border border-brand-200 space-y-3.5">
           <div class="flex items-center justify-between">
-            <h4 class="font-semibold text-slate-900 text-xs">Kelola & Perbarui Tiket (CRUD Admin)</h4>
-            <span class="text-[10px] text-slate-500">Ubah status, prioritas, & teknisi</span>
+            <h4 class="font-bold text-brand-950 text-xs flex items-center gap-1.5">
+              <i data-lucide="sliders" class="w-3.5 h-3.5 text-brand-600"></i>
+              <span>Panel Kendali Penanganan IT (CRUD)</span>
+            </h4>
+            <span class="text-[10px] text-brand-400 font-mono">Status & Penugasan</span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label class="block font-medium text-slate-600 mb-1">Status</label>
-              <select id="updateStatusSelect" class="w-full bg-white border border-slate-200 rounded-lg py-1.5 px-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400">
-                <option value="Open">Open</option>
-                <option value="In Progress">In Progress</option>
+              <label class="block font-semibold text-brand-700 mb-1">Status Tiket</label>
+              <select id="updateStatusSelect" class="w-full bg-white border border-brand-200 rounded-lg py-1.5 px-2.5 text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition font-medium">
+                <option value="Open">Open (Antrian)</option>
+                <option value="In Progress">In Progress (Diproses)</option>
                 <option value="Pending User">Pending User</option>
-                <option value="Resolved">Resolved</option>
-                <option value="Closed">Closed</option>
+                <option value="Resolved">Resolved (Selesai)</option>
+                <option value="Closed">Closed (Ditutup)</option>
               </select>
             </div>
             <div>
-              <label class="block font-medium text-slate-600 mb-1">Prioritas</label>
-              <select id="updatePrioritySelect" class="w-full bg-white border border-slate-200 rounded-lg py-1.5 px-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400">
+              <label class="block font-semibold text-brand-700 mb-1">Prioritas Urgensi</label>
+              <select id="updatePrioritySelect" class="w-full bg-white border border-brand-200 rounded-lg py-1.5 px-2.5 text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition font-medium">
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
@@ -506,53 +605,67 @@
               </select>
             </div>
             <div>
-              <label class="block font-medium text-slate-600 mb-1">Teknisi Penanggung Jawab</label>
-              <select id="updateAssigneeSelect" class="w-full bg-white border border-slate-200 rounded-lg py-1.5 px-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400">
+              <label class="block font-semibold text-brand-700 mb-1">Teknisi Bertanggung Jawab</label>
+              <select id="updateAssigneeSelect" class="w-full bg-white border border-brand-200 rounded-lg py-1.5 px-2.5 text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition font-medium">
                 <option value="Belum Ditugaskan">-- Belum Ditugaskan --</option>
-                <option value="Ahmad (IT Lead)">Ahmad (IT Lead)</option>
-                <option value="Budi Santoso (Desktop Support)">Budi Santoso (Desktop Support)</option>
-                <option value="Dimas Pratama (Network & Sysadmin)">Dimas Pratama (Network & Sysadmin)</option>
-                <option value="Rian Hidayat (Hardware Specialist)">Rian Hidayat (Hardware Specialist)</option>
               </select>
             </div>
           </div>
 
           <!-- Resolution Notes -->
           <div>
-            <label class="block font-medium text-slate-600 mb-1">Catatan Solusi Perbaikan (Dilihat oleh Pelapor)</label>
-            <textarea id="updateResolutionNotes" rows="2" placeholder="Tuliskan tindakan perbaikan yang telah dilakukan..." class="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400"></textarea>
+            <label class="block font-semibold text-brand-700 mb-1">
+              Catatan Solusi Perbaikan <span class="text-emerald-700 font-normal">(Dilihat oleh Pelapor saat Resolved)</span>
+            </label>
+            <textarea id="updateResolutionNotes" rows="2" placeholder="Jelaskan tindakan perbaikan yang telah dilakukan secara jelas..." class="w-full bg-white border border-brand-200 rounded-lg p-2.5 text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition text-xs leading-relaxed"></textarea>
           </div>
 
           <!-- Internal Notes -->
           <div>
-            <label class="block font-medium text-slate-600 mb-1">Catatan Internal IT Support (Hanya Tim IT)</label>
-            <input type="text" id="updateInternalNotes" placeholder="Catatan teknis khusus internal tim..." class="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400">
+            <label class="block font-semibold text-brand-700 mb-1">
+              Catatan Internal IT Support <span class="text-brand-400 font-normal">(Rahasia • Hanya Tim IT)</span>
+            </label>
+            <input type="text" id="updateInternalNotes" placeholder="Catatan teknis khusus internal tim..." class="w-full bg-white border border-brand-200 rounded-lg py-1.5 px-2.5 text-brand-900 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 transition text-xs">
           </div>
 
           <div class="flex items-center justify-between pt-1">
-            <button onclick="handleDeleteTicket()" type="button" class="text-red-600 hover:text-red-700 font-medium flex items-center space-x-1 py-1 px-2 rounded hover:bg-red-50 transition">
+            <button onclick="handleDeleteTicket()" type="button" class="text-rose-600 hover:text-rose-800 font-semibold flex items-center space-x-1 py-1.5 px-2.5 rounded-lg hover:bg-rose-50 border border-transparent hover:border-rose-200 transition">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
               <span>Hapus Tiket</span>
             </button>
-            <button onclick="handleSaveAdminUpdate()" type="button" class="bg-slate-900 hover:bg-slate-800 text-white font-medium px-3.5 py-1.5 rounded-lg transition">
-              Simpan Perubahan
+            <button onclick="handleSaveAdminUpdate()" type="button" class="bg-brand-900 hover:bg-brand-800 text-white font-semibold px-4 py-2 rounded-lg transition shadow-xs flex items-center gap-1.5">
+              <i data-lucide="save" class="w-3.5 h-3.5"></i>
+              <span>Simpan Perubahan</span>
             </button>
           </div>
         </div>
 
-        <!-- Activity Timeline & Discussion -->
-        <div class="space-y-2.5">
-          <h4 class="font-semibold text-slate-700 text-xs">Riwayat Aktivitas & Diskusi dengan User</h4>
+        <!-- Activity Timeline & Chat with User -->
+        <div class="space-y-2.5 pt-1">
+          <h4 class="font-bold text-brand-800 text-xs flex items-center justify-between">
+            <span class="flex items-center gap-1.5">
+              <i data-lucide="message-square" class="w-3.5 h-3.5 text-brand-400"></i>
+              <span>Riwayat Aktivitas & Komunikasi dengan User</span>
+            </span>
+          </h4>
 
-          <div id="timelineContainer" class="space-y-2 max-h-48 overflow-y-auto p-3 bg-slate-50 rounded-lg border border-slate-200 scrollbar-thin">
-            <!-- Rendered by JS -->
-          </div>
+          <div id="timelineContainer" class="space-y-2.5 max-h-52 overflow-y-auto p-3.5 bg-brand-50/50 rounded-xl border border-brand-200 scrollbar-thin"></div>
 
-          <!-- Add Comment Form -->
+          <!-- Add Comment Bar -->
           <div class="flex items-center space-x-2 pt-1">
-            <input type="text" id="inputCommentMessage" onkeypress="handleCommentKeyPress(event)" placeholder="Ketik tanggapan / pesan ke pelapor..." class="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 text-xs">
-            <button onclick="submitTicketComment()" class="bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-1.5 rounded-lg font-medium transition text-xs">
-              Kirim
+            <input 
+              type="text" 
+              id="inputCommentMessage" 
+              onkeypress="handleCommentKeyPress(event)" 
+              placeholder="Ketik tanggapan / instruksi teknis kepada user..." 
+              class="flex-1 px-3 py-2 bg-white border border-brand-200 rounded-lg text-brand-900 placeholder:text-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-900/10 focus:border-brand-900 text-xs transition"
+            />
+            <button 
+              onclick="submitTicketComment()" 
+              class="bg-brand-900 hover:bg-brand-800 text-white px-4 py-2 rounded-lg font-semibold transition text-xs flex items-center gap-1 shrink-0 shadow-2xs"
+            >
+              <span>Kirim</span>
+              <i data-lucide="send" class="w-3 h-3"></i>
             </button>
           </div>
         </div>
@@ -560,8 +673,8 @@
       </div>
 
       <!-- Footer -->
-      <div class="px-5 py-2.5 border-t border-slate-200 bg-white flex items-center justify-end text-xs">
-        <button onclick="closeModal('modalDetailTicket')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition">
+      <div class="px-5 py-3 border-t border-brand-200 bg-brand-50/40 flex items-center justify-end text-xs">
+        <button onclick="closeModal('modalDetailTicket')" class="px-4 py-1.5 bg-white border border-brand-200 hover:bg-brand-100 text-brand-700 rounded-lg font-semibold transition">
           Tutup
         </button>
       </div>
