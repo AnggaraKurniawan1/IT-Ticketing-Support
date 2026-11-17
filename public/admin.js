@@ -457,33 +457,39 @@ async function handleQuickStatusChange(ticketId, newStatus) {
   }
 }
 
-// Modal Create Manual Ticket
+// Modal Create Manual Ticket (Admin)
 function openCreateTicketModal() {
-  document.getElementById('formCreateTicket').reset();
-  document.getElementById('modalCreateTicket').classList.remove('hidden');
+  const form = document.getElementById('formAdminCreate') || document.getElementById('formCreateTicket');
+  if (form) form.reset();
+  const modal = document.getElementById('modalAdminCreate') || document.getElementById('modalCreateTicket');
+  if (modal) modal.classList.remove('hidden');
   lucide.createIcons();
 }
 
-async function handleCreateTicketSubmit(event) {
+async function handleAdminCreateTicket(event) {
   event.preventDefault();
-  const btn = document.getElementById('btnSubmitTicket');
-  btn.disabled = true;
-  btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Menyimpan...</span>`;
-  lucide.createIcons();
+
+  const reqName = document.getElementById('inputRequesterName')?.value.trim();
+  const dept = document.getElementById('inputDepartment')?.value;
+  const phone = document.getElementById('inputRequesterPhone')?.value.trim();
+  const email = document.getElementById('inputRequesterEmail')?.value.trim();
+  const cat = document.getElementById('inputCategory')?.value;
+  const prio = document.getElementById('inputPriority')?.value;
+  const subject = document.getElementById('inputSubject')?.value.trim();
+  const desc = document.getElementById('inputDescription')?.value.trim();
+  const assignedTo = document.getElementById('inputAssignedTo')?.value;
 
   const formData = new FormData();
-  formData.append('requester_name', document.getElementById('inputRequesterName').value.trim());
-  formData.append('department', document.getElementById('inputDepartment').value);
-  formData.append('requester_phone', document.getElementById('inputRequesterPhone').value.trim());
-  formData.append('requester_email', document.getElementById('inputRequesterEmail').value.trim());
-  formData.append('location', document.getElementById('inputLocation').value.trim());
-  formData.append('category', document.getElementById('inputCategory').value);
-  formData.append('priority', document.getElementById('inputPriority').value);
-  formData.append('subject', document.getElementById('inputSubject').value.trim());
-  formData.append('description', document.getElementById('inputDescription').value.trim());
+  formData.append('requester_name', reqName || 'Walk-in User');
+  formData.append('department', dept || 'Umum');
+  formData.append('requester_phone', phone || '');
+  formData.append('requester_email', email || '');
+  formData.append('category', cat || 'Hardware');
+  formData.append('priority', prio || 'Medium');
+  formData.append('subject', subject || '');
+  formData.append('description', desc || '');
   formData.append('author_role', 'admin');
 
-  const assignedTo = document.getElementById('inputAssignedTo')?.value;
   if (assignedTo && assignedTo !== 'Belum Ditugaskan') {
     formData.append('assigned_to', assignedTo);
   }
@@ -496,6 +502,7 @@ async function handleCreateTicketSubmit(event) {
     const json = await res.json();
 
     if (json.success) {
+      closeModal('modalAdminCreate');
       closeModal('modalCreateTicket');
       showToast('Tiket manual berhasil dibuat!', 'success');
       refreshAdminData();
@@ -514,11 +521,12 @@ async function handleCreateTicketSubmit(event) {
       text: err.message,
       confirmButtonColor: '#0f172a'
     });
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<i data-lucide="plus" class="w-3.5 h-3.5"></i><span>Simpan Tiket Manual</span>`;
-    lucide.createIcons();
   }
+}
+
+// Alias for backwards compatibility
+function handleCreateTicketSubmit(event) {
+  return handleAdminCreateTicket(event);
 }
 
 // Modal Manage Ticket (CRUD)

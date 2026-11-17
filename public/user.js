@@ -266,24 +266,32 @@ function openCreateTicketModal() {
 
 async function handleCreateTicketSubmit(event) {
   event.preventDefault();
-  const btn = document.getElementById('btnSubmitTicket');
-  btn.disabled = true;
-  btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Mengirim...</span>`;
-  lucide.createIcons();
+  const btn = document.getElementById('btnSubmitCreateTicket') || document.getElementById('btnSubmitTicket');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Mengirim...</span>`;
+    lucide.createIcons();
+  }
+
+  const locationEl = document.getElementById('createLocation') || document.getElementById('inputLocation');
+  const categoryEl = document.getElementById('createCategory') || document.getElementById('inputCategory');
+  const priorityEl = document.getElementById('createPriority') || document.getElementById('inputPriority');
+  const subjectEl = document.getElementById('createSubject') || document.getElementById('inputSubject');
+  const descEl = document.getElementById('createDescription') || document.getElementById('inputDescription');
+  const fileInput = document.getElementById('createAttachment') || document.getElementById('inputAttachment');
 
   const formData = new FormData();
   formData.append('requester_name', currentUser?.full_name || '');
   formData.append('department', currentUser?.department || '');
   formData.append('requester_email', currentUser?.email || '');
   formData.append('requester_phone', currentUser?.phone || '');
-  formData.append('location', document.getElementById('inputLocation').value.trim());
-  formData.append('category', document.getElementById('inputCategory').value);
-  formData.append('priority', document.getElementById('inputPriority').value);
-  formData.append('subject', document.getElementById('inputSubject').value.trim());
-  formData.append('description', document.getElementById('inputDescription').value.trim());
+  formData.append('location', locationEl ? locationEl.value.trim() : '');
+  formData.append('category', categoryEl ? categoryEl.value : 'Hardware');
+  formData.append('priority', priorityEl ? priorityEl.value : 'Medium');
+  formData.append('subject', subjectEl ? subjectEl.value.trim() : '');
+  formData.append('description', descEl ? descEl.value.trim() : '');
 
-  const fileInput = document.getElementById('inputAttachment');
-  if (fileInput.files.length > 0) {
+  if (fileInput && fileInput.files && fileInput.files.length > 0) {
     formData.append('attachment', fileInput.files[0]);
   }
 
@@ -296,6 +304,7 @@ async function handleCreateTicketSubmit(event) {
 
     if (json.success) {
       closeModal('modalCreateTicket');
+      document.getElementById('formCreateTicket')?.reset();
       Swal.fire({
         icon: 'success',
         title: 'Tiket Berhasil Diajukan',
@@ -315,13 +324,15 @@ async function handleCreateTicketSubmit(event) {
     Swal.fire({
       icon: 'error',
       title: 'Kesalahan Sistem',
-      text: err.message,
+      text: err.message || 'Gagal terhubung ke server.',
       confirmButtonColor: '#0f172a'
     });
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<i data-lucide="send" class="w-3.5 h-3.5"></i><span>Kirim Tiket ke IT</span>`;
-    lucide.createIcons();
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<span>Kirim Tiket</span>`;
+      lucide.createIcons();
+    }
   }
 }
 
