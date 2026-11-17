@@ -338,78 +338,84 @@ async function openDetailTicket(ticketId) {
     const ticket = json.data;
     currentDetailTicket = ticket;
 
-    document.getElementById('detailTicketNumber').textContent = `#${ticket.ticket_number}`;
-    document.getElementById('detailSubject').textContent = ticket.subject;
+    const elNum = document.getElementById('detailTicketNumber');
+    if (elNum) elNum.textContent = `#${ticket.ticket_number}`;
+
+    const elSub = document.getElementById('detailSubject');
+    if (elSub) elSub.textContent = ticket.subject;
+
+    const elCat = document.getElementById('detailCategory');
+    if (elCat) elCat.textContent = ticket.category;
+
+    const elDate = document.getElementById('detailCreatedAt');
+    if (elDate) elDate.textContent = formatDateTime(ticket.created_at);
+
+    const elLoc = document.getElementById('detailLocation');
+    if (elLoc) elLoc.textContent = ticket.location || 'Tidak dicantumkan';
+
+    const elDesc = document.getElementById('detailDescription');
+    if (elDesc) elDesc.textContent = ticket.description;
+
+    const elAssignee = document.getElementById('detailAssignedTo');
+    if (elAssignee) elAssignee.textContent = ticket.assigned_to || 'Belum Ditugaskan';
 
     const priorityBadge = document.getElementById('detailPriorityBadge');
-    priorityBadge.className = `text-[10px] px-2 py-0.5 rounded font-semibold uppercase tracking-wider ${getPriorityColorClasses(ticket.priority)}`;
-    priorityBadge.textContent = ticket.priority;
+    if (priorityBadge) {
+      priorityBadge.className = `text-[10px] px-2 py-0.5 rounded font-semibold uppercase tracking-wider ${getPriorityColorClasses(ticket.priority)}`;
+      priorityBadge.textContent = ticket.priority;
+    }
 
     const statusBadge = document.getElementById('detailStatusBadge');
-    statusBadge.className = `text-[10px] px-2 py-0.5 rounded font-semibold ${getStatusColorClasses(ticket.status)}`;
-    statusBadge.textContent = ticket.status;
-
-    document.getElementById('detailRequester').textContent = ticket.requester_name;
-    document.getElementById('detailDepartment').textContent = ticket.department;
-    document.getElementById('detailContact').textContent = ticket.requester_phone || ticket.requester_email || '-';
-    document.getElementById('detailLocation').textContent = ticket.location || 'Tidak dicantumkan';
-    document.getElementById('detailCategory').textContent = ticket.category;
-    document.getElementById('detailCreatedAt').textContent = `${formatDateTime(ticket.created_at)}`;
-    document.getElementById('detailAssignee').textContent = ticket.assigned_to;
-    document.getElementById('detailResolvedAt').textContent = ticket.resolved_at ? `Selesai: ${formatDateTime(ticket.resolved_at)}` : '';
-
-    document.getElementById('detailDescription').textContent = ticket.description;
+    if (statusBadge) {
+      statusBadge.className = `text-[10px] px-2 py-0.5 rounded font-semibold ${getStatusColorClasses(ticket.status)}`;
+      statusBadge.textContent = ticket.status;
+    }
 
     // Attachment
-    const attContainer = document.getElementById('detailAttachmentContainer');
-    const attContent = document.getElementById('detailAttachmentContent');
-    if (ticket.attachment) {
-      attContainer.classList.remove('hidden');
-      const isImg = /\.(jpg|jpeg|png|gif)$/i.test(ticket.attachment);
-      if (isImg) {
-        attContent.innerHTML = `
-          <a href="${ticket.attachment}" target="_blank" class="block group relative rounded-xl overflow-hidden border border-slate-200">
-            <img src="${ticket.attachment}" alt="Bukti Masalah" class="max-h-48 rounded object-cover">
-          </a>
-        `;
+    const attWrap = document.getElementById('detailAttachmentWrap');
+    const attLink = document.getElementById('detailAttachmentLink');
+    if (attWrap && attLink) {
+      if (ticket.attachment) {
+        attWrap.classList.remove('hidden');
+        attLink.href = ticket.attachment;
+        attLink.textContent = ticket.attachment.split('/').pop() || 'Buka Berkas Lampiran';
       } else {
-        attContent.innerHTML = `
-          <a href="${ticket.attachment}" target="_blank" class="inline-flex items-center space-x-1.5 text-slate-800 hover:text-slate-950 font-semibold text-xs bg-white px-3 py-2 rounded-lg border border-slate-200 shadow-2xs">
-            <i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i>
-            <span>Buka Berkas Lampiran</span>
-          </a>
-        `;
+        attWrap.classList.add('hidden');
       }
-    } else {
-      attContainer.classList.add('hidden');
     }
 
-    // Solusi IT
-    const userResView = document.getElementById('userResolutionView');
-    if (ticket.resolution_notes && (ticket.status === 'Resolved' || ticket.status === 'Closed')) {
-      userResView.classList.remove('hidden');
-      document.getElementById('userResolutionText').textContent = ticket.resolution_notes;
-    } else {
-      userResView.classList.add('hidden');
+    // Official Resolution Solution
+    const solSection = document.getElementById('detailSolutionSection');
+    const solNotes = document.getElementById('detailResolutionNotes');
+    if (solSection && solNotes) {
+      if (ticket.resolution_notes && (ticket.status === 'Resolved' || ticket.status === 'Closed')) {
+        solSection.classList.remove('hidden');
+        solNotes.textContent = ticket.resolution_notes;
+      } else {
+        solSection.classList.add('hidden');
+      }
     }
 
+    // Render Timeline / Activities
     renderActivitiesTimeline(ticket.activities || []);
 
-    document.getElementById('modalDetailTicket').classList.remove('hidden');
+    const modal = document.getElementById('modalDetailTicket');
+    if (modal) modal.classList.remove('hidden');
     lucide.createIcons();
   } catch (err) {
     console.error('Error opening detail ticket:', err);
+    showToast('Gagal memuat detail tiket', 'error');
   }
 }
 
 function renderActivitiesTimeline(activities) {
-  const container = document.getElementById('timelineContainer');
+  const container = document.getElementById('detailActivitiesList') || document.getElementById('timelineContainer');
   if (!container) return;
 
   if (activities.length === 0) {
     container.innerHTML = `
       <div class="text-center py-4 text-slate-400 text-xs">
-        Belum ada diskusi pada tiket ini.
+        Belum ada riwayat aktivitas pada tiket ini.
       </div>
     `;
     return;
@@ -426,21 +432,21 @@ function renderActivitiesTimeline(activities) {
     else if (act.action_type === 'resolved') icon = 'check-circle-2';
 
     html += `
-      <div class="flex space-x-2.5 text-xs">
-        <div class="w-7 h-7 rounded-lg ${isAdmin ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-800'} flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold shadow-2xs">
+      <div class="flex items-start gap-2.5 p-2.5 rounded-lg ${isAdmin ? 'bg-slate-100/80 border border-slate-200' : 'bg-white border border-slate-200'} text-xs">
+        <div class="w-6 h-6 rounded-md ${isAdmin ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-700'} flex items-center justify-center shrink-0 mt-0.5">
           <i data-lucide="${icon}" class="w-3.5 h-3.5"></i>
         </div>
-        <div class="flex-1 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
-          <div class="flex items-center justify-between mb-1">
-            <span class="font-bold text-slate-950 flex items-center space-x-1.5">
-              <span>${escapeHtml(act.author_name)}</span>
-              <span class="text-[9px] uppercase px-1.5 py-0.2 rounded font-semibold ${isAdmin ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'}">
-                ${isAdmin ? 'IT Support' : 'Pelapor'}
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-slate-900">${escapeHtml(act.author_name)}</span>
+              <span class="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded ${isAdmin ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-700'}">
+                ${act.author_role}
               </span>
-            </span>
-            <span class="text-[10px] text-slate-400">${formatDateTime(act.created_at)}</span>
+            </div>
+            <span class="text-[10px] text-slate-400 font-mono">${formatDateTime(act.created_at)}</span>
           </div>
-          <p class="text-slate-700 leading-relaxed whitespace-pre-line text-xs">${escapeHtml(act.message)}</p>
+          <div class="text-slate-700 mt-1 whitespace-pre-wrap leading-relaxed">${escapeHtml(act.message)}</div>
         </div>
       </div>
     `;
@@ -454,7 +460,8 @@ function renderActivitiesTimeline(activities) {
 async function submitTicketComment() {
   if (!currentDetailTicket) return;
 
-  const input = document.getElementById('inputCommentMessage');
+  const input = document.getElementById('inputComment') || document.getElementById('inputCommentMessage');
+  if (!input) return;
   const message = input.value.trim();
   if (!message) return;
 
@@ -479,6 +486,11 @@ async function submitTicketComment() {
   } catch (err) {
     showToast('Gagal mengirim pesan', 'error');
   }
+}
+
+// Alias for HTML button onclick="submitUserComment()"
+function submitUserComment() {
+  return submitTicketComment();
 }
 
 function handleCommentKeyPress(event) {

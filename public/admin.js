@@ -534,70 +534,76 @@ async function openDetailTicket(ticketId) {
     const ticket = json.data;
     currentDetailTicket = ticket;
 
-    document.getElementById('detailTicketNumber').textContent = `#${ticket.ticket_number}`;
-    document.getElementById('detailSubject').textContent = ticket.subject;
+    const elNum = document.getElementById('adminDetailNumber') || document.getElementById('detailTicketNumber');
+    if (elNum) elNum.textContent = `#${ticket.ticket_number}`;
 
-    const priorityBadge = document.getElementById('detailPriorityBadge');
-    priorityBadge.className = `text-[10px] px-2 py-0.5 rounded font-semibold uppercase tracking-wider ${getPriorityColorClasses(ticket.priority)}`;
-    priorityBadge.textContent = ticket.priority;
+    const elSub = document.getElementById('adminDetailSubject') || document.getElementById('detailSubject');
+    if (elSub) elSub.textContent = ticket.subject;
 
-    const statusBadge = document.getElementById('detailStatusBadge');
-    statusBadge.className = `text-[10px] px-2 py-0.5 rounded font-semibold ${getStatusColorClasses(ticket.status)}`;
-    statusBadge.textContent = ticket.status;
+    const elReq = document.getElementById('adminDetailRequester') || document.getElementById('detailRequester');
+    if (elReq) elReq.textContent = ticket.requester_name;
 
-    document.getElementById('detailRequester').textContent = ticket.requester_name;
-    document.getElementById('detailDepartment').textContent = ticket.department;
-    document.getElementById('detailContact').textContent = ticket.requester_phone || ticket.requester_email || '-';
-    document.getElementById('detailLocation').textContent = ticket.location || 'Tidak dicantumkan';
-    document.getElementById('detailCategory').textContent = ticket.category;
-    document.getElementById('detailCreatedAt').textContent = `${formatDateTime(ticket.created_at)}`;
-    document.getElementById('detailAssignee').textContent = ticket.assigned_to;
-    document.getElementById('detailResolvedAt').textContent = ticket.resolved_at ? `Selesai: ${formatDateTime(ticket.resolved_at)}` : '';
+    const elDept = document.getElementById('adminDetailDept') || document.getElementById('detailDepartment');
+    if (elDept) elDept.textContent = ticket.department;
 
-    document.getElementById('detailDescription').textContent = ticket.description;
+    const elLoc = document.getElementById('adminDetailLocation') || document.getElementById('detailLocation');
+    if (elLoc) elLoc.textContent = ticket.location || 'Tidak dicantumkan';
 
-    // Attachment
-    const attContainer = document.getElementById('detailAttachmentContainer');
-    const attContent = document.getElementById('detailAttachmentContent');
-    if (ticket.attachment) {
-      attContainer.classList.remove('hidden');
-      const isImg = /\.(jpg|jpeg|png|gif)$/i.test(ticket.attachment);
-      if (isImg) {
-        attContent.innerHTML = `
-          <a href="${ticket.attachment}" target="_blank" class="block group relative rounded-xl overflow-hidden border border-slate-200">
-            <img src="${ticket.attachment}" alt="Bukti Masalah" class="max-h-48 rounded object-cover">
-          </a>
-        `;
-      } else {
-        attContent.innerHTML = `
-          <a href="${ticket.attachment}" target="_blank" class="inline-flex items-center space-x-1.5 text-slate-800 hover:text-slate-950 font-semibold text-xs bg-white px-3 py-2 rounded-lg border border-slate-200 shadow-2xs">
-            <i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i>
-            <span>Buka Berkas Lampiran</span>
-          </a>
-        `;
-      }
-    } else {
-      attContainer.classList.add('hidden');
+    const elDesc = document.getElementById('adminDetailDescription') || document.getElementById('detailDescription');
+    if (elDesc) elDesc.textContent = ticket.description;
+
+    const priorityBadge = document.getElementById('adminDetailPriorityBadge') || document.getElementById('detailPriorityBadge');
+    if (priorityBadge) {
+      priorityBadge.className = `text-[10px] px-2 py-0.5 rounded font-semibold uppercase tracking-wider ${getPriorityColorClasses(ticket.priority)}`;
+      priorityBadge.textContent = ticket.priority;
     }
 
-    // Populate CRUD Update form
-    document.getElementById('updateStatusSelect').value = ticket.status;
-    document.getElementById('updatePrioritySelect').value = ticket.priority;
-    document.getElementById('updateAssigneeSelect').value = ticket.assigned_to;
-    document.getElementById('updateResolutionNotes').value = ticket.resolution_notes || '';
-    document.getElementById('updateInternalNotes').value = ticket.internal_notes || '';
+    const statusBadge = document.getElementById('adminDetailStatusBadge') || document.getElementById('detailStatusBadge');
+    if (statusBadge) {
+      statusBadge.className = `text-[10px] px-2 py-0.5 rounded font-semibold ${getStatusColorClasses(ticket.status)}`;
+      statusBadge.textContent = ticket.status;
+    }
+
+    // Attachment
+    const attWrap = document.getElementById('adminDetailAttachmentWrap') || document.getElementById('detailAttachmentContainer');
+    const attLink = document.getElementById('adminDetailAttachmentLink') || document.getElementById('detailAttachmentContent');
+    if (attWrap && attLink) {
+      if (ticket.attachment) {
+        attWrap.classList.remove('hidden');
+        attLink.href = ticket.attachment;
+        attLink.textContent = ticket.attachment.split('/').pop() || 'Buka Berkas Lampiran';
+      } else {
+        attWrap.classList.add('hidden');
+      }
+    }
+
+    // Quick Update selects
+    const statusSelect = document.getElementById('updateStatusSelect');
+    if (statusSelect) statusSelect.value = ticket.status;
+
+    const assigneeSelect = document.getElementById('updateAssigneeSelect');
+    if (assigneeSelect) assigneeSelect.value = ticket.assigned_to || 'Belum Ditugaskan';
+
+    // Notes
+    const resNotes = document.getElementById('adminInputResolutionNotes') || document.getElementById('updateResolutionNotes');
+    if (resNotes) resNotes.value = ticket.resolution_notes || '';
+
+    const intNotes = document.getElementById('adminInputInternalNotes') || document.getElementById('updateInternalNotes');
+    if (intNotes) intNotes.value = ticket.internal_notes || '';
 
     renderActivitiesTimeline(ticket.activities || []);
 
-    document.getElementById('modalDetailTicket').classList.remove('hidden');
+    const modal = document.getElementById('modalAdminDetail') || document.getElementById('modalDetailTicket');
+    if (modal) modal.classList.remove('hidden');
     lucide.createIcons();
   } catch (err) {
     console.error('Error opening detail ticket:', err);
+    showToast('Gagal memuat detail tiket', 'error');
   }
 }
 
 function renderActivitiesTimeline(activities) {
-  const container = document.getElementById('timelineContainer');
+  const container = document.getElementById('adminActivitiesList') || document.getElementById('timelineContainer');
   if (!container) return;
 
   if (activities.length === 0) {
@@ -620,21 +626,21 @@ function renderActivitiesTimeline(activities) {
     else if (act.action_type === 'resolved') icon = 'check-circle-2';
 
     html += `
-      <div class="flex space-x-2.5 text-xs">
-        <div class="w-7 h-7 rounded-lg ${isAdmin ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-800'} flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold shadow-2xs">
+      <div class="flex items-start gap-2.5 p-2.5 rounded-lg ${isAdmin ? 'bg-slate-100/80 border border-slate-200' : 'bg-white border border-slate-200'} text-xs">
+        <div class="w-6 h-6 rounded-md ${isAdmin ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-700'} flex items-center justify-center shrink-0 mt-0.5">
           <i data-lucide="${icon}" class="w-3.5 h-3.5"></i>
         </div>
-        <div class="flex-1 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
-          <div class="flex items-center justify-between mb-1">
-            <span class="font-bold text-slate-950 flex items-center space-x-1.5">
-              <span>${escapeHtml(act.author_name)}</span>
-              <span class="text-[9px] uppercase px-1.5 py-0.2 rounded font-semibold ${isAdmin ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'}">
-                ${isAdmin ? 'IT Support' : 'Pelapor'}
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-slate-900">${escapeHtml(act.author_name)}</span>
+              <span class="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded ${isAdmin ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-700'}">
+                ${act.author_role}
               </span>
-            </span>
+            </div>
             <span class="text-[10px] text-slate-400 font-mono">${formatDateTime(act.created_at)}</span>
           </div>
-          <p class="text-slate-700 leading-relaxed whitespace-pre-line text-xs">${escapeHtml(act.message)}</p>
+          <div class="text-slate-700 mt-1 whitespace-pre-wrap leading-relaxed">${escapeHtml(act.message)}</div>
         </div>
       </div>
     `;
@@ -645,24 +651,79 @@ function renderActivitiesTimeline(activities) {
   container.scrollTop = container.scrollHeight;
 }
 
-// Save Admin CRUD Update
-async function handleSaveAdminUpdate() {
+// Quick status change inside detail modal
+async function handleAdminQuickStatusChange() {
   if (!currentDetailTicket) return;
-
-  const status = document.getElementById('updateStatusSelect').value;
-  const priority = document.getElementById('updatePrioritySelect').value;
-  const assigned_to = document.getElementById('updateAssigneeSelect').value;
-  const resolution_notes = document.getElementById('updateResolutionNotes').value.trim();
-  const internal_notes = document.getElementById('updateInternalNotes').value.trim();
+  const newStatus = document.getElementById('updateStatusSelect')?.value;
+  if (!newStatus) return;
 
   try {
     const res = await fetch(`/api/tickets/${currentDetailTicket.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        status,
-        priority,
-        assigned_to,
+        status: newStatus,
+        updated_by: currentAdmin?.full_name || 'IT Support Admin'
+      })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showToast(`Status diubah menjadi "${newStatus}"`, 'success');
+      currentDetailTicket.status = newStatus;
+      const statusBadge = document.getElementById('adminDetailStatusBadge');
+      if (statusBadge) {
+        statusBadge.className = `text-[10px] px-2 py-0.5 rounded font-semibold ${getStatusColorClasses(newStatus)}`;
+        statusBadge.textContent = newStatus;
+      }
+      refreshAdminData();
+    } else {
+      showToast(json.message || 'Gagal mengubah status', 'error');
+    }
+  } catch (err) {
+    showToast('Terjadi kesalahan koneksi', 'error');
+  }
+}
+
+// Quick assignee change inside detail modal
+async function handleAdminQuickAssigneeChange() {
+  if (!currentDetailTicket) return;
+  const newAssignee = document.getElementById('updateAssigneeSelect')?.value;
+  if (!newAssignee) return;
+
+  try {
+    const res = await fetch(`/api/tickets/${currentDetailTicket.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        assigned_to: newAssignee,
+        updated_by: currentAdmin?.full_name || 'IT Support Admin'
+      })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showToast(`Teknisi ditugaskan: ${newAssignee}`, 'success');
+      currentDetailTicket.assigned_to = newAssignee;
+      refreshAdminData();
+    } else {
+      showToast(json.message || 'Gagal mengubah penugasan', 'error');
+    }
+  } catch (err) {
+    showToast('Terjadi kesalahan koneksi', 'error');
+  }
+}
+
+// Save Admin Notes (Resolution & Internal)
+async function saveAdminNotes() {
+  if (!currentDetailTicket) return;
+
+  const resolution_notes = document.getElementById('adminInputResolutionNotes')?.value.trim();
+  const internal_notes = document.getElementById('adminInputInternalNotes')?.value.trim();
+
+  try {
+    const res = await fetch(`/api/tickets/${currentDetailTicket.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         resolution_notes,
         internal_notes,
         updated_by: currentAdmin?.full_name || 'IT Support Admin'
@@ -670,16 +731,19 @@ async function handleSaveAdminUpdate() {
     });
     const json = await res.json();
     if (json.success) {
-      showToast('Perubahan berhasil disimpan!', 'success');
-      await openDetailTicket(currentDetailTicket.id);
-      loadAdminStats();
-      fetchAdminTickets(false);
+      showToast('Catatan berhasil disimpan!', 'success');
+      refreshAdminData();
     } else {
-      showToast(json.message || 'Gagal menyimpan perubahan', 'error');
+      showToast(json.message || 'Gagal menyimpan catatan', 'error');
     }
   } catch (err) {
-    showToast('Terjadi kesalahan sistem', 'error');
+    showToast('Terjadi kesalahan koneksi', 'error');
   }
+}
+
+// Alias for old name
+function handleSaveAdminUpdate() {
+  return saveAdminNotes();
 }
 
 // Delete ticket (Admin CRUD)
@@ -705,7 +769,7 @@ function quickDeleteTicket(ticketId, ticketNumber, fromModal = false) {
         const json = await res.json();
         if (json.success) {
           showToast('Tiket berhasil dihapus', 'success');
-          if (fromModal) closeModal('modalDetailTicket');
+          if (fromModal) closeModal('modalAdminDetail');
           refreshAdminData();
         } else {
           showToast(json.message || 'Gagal menghapus tiket', 'error');
@@ -717,11 +781,12 @@ function quickDeleteTicket(ticketId, ticketNumber, fromModal = false) {
   });
 }
 
-// Add comment to ticket
+// Add comment to ticket (Admin)
 async function submitTicketComment() {
   if (!currentDetailTicket) return;
 
-  const input = document.getElementById('inputCommentMessage');
+  const input = document.getElementById('adminInputComment') || document.getElementById('inputCommentMessage');
+  if (!input) return;
   const message = input.value.trim();
   if (!message) return;
 
@@ -738,6 +803,15 @@ async function submitTicketComment() {
     });
     const json = await res.json();
     if (json.success) {
+      input.value = '';
+      renderActivitiesTimeline(json.data);
+    } else {
+      showToast(json.message || 'Gagal mengirim tanggapan', 'error');
+    }
+  } catch (err) {
+    showToast('Gagal mengirim pesan', 'error');
+  }
+}
       input.value = '';
       renderActivitiesTimeline(json.data);
     } else {
