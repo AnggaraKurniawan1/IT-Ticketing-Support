@@ -1,11 +1,28 @@
-const { DatabaseSync } = require('node:sqlite');
+let Database;
+try {
+  Database = require('better-sqlite3');
+} catch (e) {
+  const { DatabaseSync } = require('node:sqlite');
+  Database = DatabaseSync;
+}
 const path = require('node:path');
+const fs = require('node:fs');
 const bcrypt = require('bcrypt');
 
-// Use /data/ on Render (persistent disk) or __dirname locally
-const dataDir = process.env.RENDER ? '/data' : __dirname;
+// Support persistent directories:
+// - Glitch uses '.data' folder (won't trigger reload on file write)
+// - Render / Linux persistent mount uses '/data'
+// - Fallback to __dirname locally
+const dataDir = process.env.DATA_DIR || 
+  (process.env.PROJECT_NAME ? path.join(__dirname, '.data') : 
+  (process.env.RENDER ? '/data' : __dirname));
+
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+}
+
 const dbPath = path.join(dataDir, 'tickets.db');
-const db = new DatabaseSync(dbPath);
+const db = new Database(dbPath);
 
 // Enable WAL mode and foreign keys
 db.exec('PRAGMA foreign_keys = ON;');

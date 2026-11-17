@@ -10,8 +10,10 @@ const { dbService } = require('./database');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Ensure uploads folder exists
-const uploadsDir = path.join(__dirname, 'uploads');
+// Ensure uploads folder exists (inside .data on Glitch, or uploads locally)
+const uploadsDir = process.env.PROJECT_NAME 
+  ? path.join(__dirname, '.data', 'uploads') 
+  : path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 // Multer storage config for attachments
