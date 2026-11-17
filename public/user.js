@@ -63,8 +63,8 @@ async function fetchUserTickets(showLoading = true) {
 
   if (showLoading && container) {
     container.innerHTML = `
-      <div class="p-12 text-center text-brand-400">
-        <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-brand-400 mb-2"></i>
+      <div class="p-12 text-center text-slate-400">
+        <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto text-slate-400 mb-2"></i>
         <p class="text-xs font-medium">Memuat data tiket...</p>
       </div>
     `;
@@ -111,14 +111,14 @@ function renderUserTickets(tickets) {
   if (tickets.length === 0) {
     container.innerHTML = `
       <div class="p-12 text-center space-y-3">
-        <div class="w-12 h-12 bg-brand-100 text-brand-400 rounded-2xl flex items-center justify-center mx-auto">
+        <div class="w-12 h-12 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto">
           <i data-lucide="inbox" class="w-6 h-6"></i>
         </div>
         <div>
-          <h4 class="text-sm font-bold text-brand-900">Belum Ada Tiket pada Kategori Ini</h4>
-          <p class="text-[11px] text-brand-500 mt-0.5">Semua kendala yang Anda laporkan akan tercatat rapi di sini.</p>
+          <h4 class="text-sm font-bold text-slate-900">Belum Ada Tiket pada Kategori Ini</h4>
+          <p class="text-[11px] text-slate-500 mt-0.5">Semua kendala yang Anda laporkan akan tercatat rapi di sini.</p>
         </div>
-        <button onclick="openCreateTicketModal()" class="inline-flex items-center space-x-1.5 bg-brand-900 hover:bg-brand-800 text-white font-semibold text-xs px-4 py-2 rounded-xl transition shadow-sm">
+        <button onclick="openCreateTicketModal()" class="inline-flex items-center space-x-1.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs px-4 py-2 rounded-xl transition shadow-sm">
           <i data-lucide="plus" class="w-3.5 h-3.5"></i>
           <span>Ajukan Tiket Sekarang</span>
         </button>
@@ -135,35 +135,35 @@ function renderUserTickets(tickets) {
     const hasAssignee = ticket.assigned_to && ticket.assigned_to !== 'Belum Ditugaskan';
 
     html += `
-      <div class="p-4 sm:p-5 hover:bg-brand-50/70 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 cursor-pointer group" onclick="openDetailTicket(${ticket.id})">
+      <div class="p-4 sm:p-5 hover:bg-slate-50/70 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 cursor-pointer group" onclick="openDetailTicket(${ticket.id})">
         
         <div class="space-y-1.5 flex-1 min-w-0">
           
           <!-- Badges Bar -->
           <div class="flex flex-wrap items-center gap-2">
-            <span class="font-mono text-[11px] font-bold text-brand-800 bg-brand-100 px-2 py-0.5 rounded-md border border-brand-200">
+            <span class="font-mono text-[11px] font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
               #${ticket.ticket_number}
             </span>
             ${statusBadge}
             ${priorityBadge}
-            <span class="text-brand-500 text-[11px] font-medium flex items-center gap-1">
-              <i data-lucide="tag" class="w-3 h-3 text-brand-400"></i>
+            <span class="text-slate-500 text-[11px] font-medium flex items-center gap-1">
+              <i data-lucide="tag" class="w-3 h-3 text-slate-400"></i>
               ${ticket.category}
             </span>
           </div>
 
           <!-- Subject -->
-          <h3 class="text-xs sm:text-sm font-bold text-brand-950 group-hover:text-brand-800 transition line-clamp-1">
+          <h3 class="text-xs sm:text-sm font-bold text-slate-950 group-hover:text-slate-800 transition line-clamp-1">
             ${escapeHtml(ticket.subject)}
           </h3>
 
           <!-- Description snippet -->
-          <p class="text-xs text-brand-500 line-clamp-1 leading-relaxed">
+          <p class="text-xs text-slate-500 line-clamp-1 leading-relaxed">
             ${escapeHtml(ticket.description)}
           </p>
 
           <!-- Footer Metadata -->
-          <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-[11px] text-brand-400 pt-0.5">
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-[11px] text-slate-400 pt-0.5">
             <span class="flex items-center gap-1">
               <i data-lucide="calendar" class="w-3 h-3"></i>
               <span>${formatDateTime(ticket.created_at)}</span>
@@ -174,7 +174,7 @@ function renderUserTickets(tickets) {
               <span>${escapeHtml(ticket.location || 'Ruang Kerja')}</span>
             </span>
             <span>•</span>
-            <span class="flex items-center gap-1.5 ${hasAssignee ? 'text-brand-700 font-semibold' : 'text-brand-400'}">
+            <span class="flex items-center gap-1.5 ${hasAssignee ? 'text-slate-700 font-semibold' : 'text-slate-400'}">
               <i data-lucide="user-check" class="w-3 h-3"></i>
               <span>Teknisi: ${escapeHtml(ticket.assigned_to)}</span>
             </span>
@@ -184,9 +184,9 @@ function renderUserTickets(tickets) {
 
         <!-- Action / Arrow -->
         <div class="flex items-center space-x-2 shrink-0 self-end sm:self-center">
-          <span class="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg border border-brand-200 bg-white group-hover:bg-brand-900 group-hover:text-white group-hover:border-brand-900 text-brand-700 text-xs font-semibold transition">
+          <span class="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-900 text-slate-700 text-xs font-semibold transition">
             <span>Detail</span>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-brand-400 group-hover:text-white transition"></i>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition"></i>
           </span>
         </div>
 
@@ -228,9 +228,9 @@ function filterUserStatus(status) {
     const btn = document.getElementById(`btnUserStatus${b}`);
     if (btn) {
       if ((b === 'InProgress' && status === 'In Progress') || b === status) {
-        btn.className = 'px-2.5 py-1 rounded-md bg-white shadow-2xs text-brand-950 font-bold transition';
+        btn.className = 'px-2.5 py-1 rounded-md bg-white shadow-2xs text-slate-950 font-bold transition';
       } else {
-        btn.className = 'px-2.5 py-1 rounded-md text-brand-600 hover:text-brand-950 transition';
+        btn.className = 'px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-950 transition';
       }
     }
   });
@@ -299,7 +299,7 @@ async function handleCreateTicketSubmit(event) {
       Swal.fire({
         icon: 'success',
         title: 'Tiket Berhasil Diajukan',
-        html: `Nomor Tiket Anda: <b class="text-brand-950 font-mono text-base">${json.data.ticket_number}</b><br><span class="text-xs text-brand-500">Tim IT Support telah diberitahu dan akan segera menangani kendala Anda.</span>`,
+        html: `Nomor Tiket Anda: <b class="text-slate-950 font-mono text-base">${json.data.ticket_number}</b><br><span class="text-xs text-slate-500">Tim IT Support telah diberitahu dan akan segera menangani kendala Anda.</span>`,
         confirmButtonColor: '#0f172a'
       });
       fetchUserTickets(true);
@@ -368,14 +368,14 @@ async function openDetailTicket(ticketId) {
       const isImg = /\.(jpg|jpeg|png|gif)$/i.test(ticket.attachment);
       if (isImg) {
         attContent.innerHTML = `
-          <a href="${ticket.attachment}" target="_blank" class="block group relative rounded-xl overflow-hidden border border-brand-200">
+          <a href="${ticket.attachment}" target="_blank" class="block group relative rounded-xl overflow-hidden border border-slate-200">
             <img src="${ticket.attachment}" alt="Bukti Masalah" class="max-h-48 rounded object-cover">
           </a>
         `;
       } else {
         attContent.innerHTML = `
-          <a href="${ticket.attachment}" target="_blank" class="inline-flex items-center space-x-1.5 text-brand-800 hover:text-brand-950 font-semibold text-xs bg-white px-3 py-2 rounded-lg border border-brand-200 shadow-2xs">
-            <i data-lucide="file-text" class="w-4 h-4 text-brand-500"></i>
+          <a href="${ticket.attachment}" target="_blank" class="inline-flex items-center space-x-1.5 text-slate-800 hover:text-slate-950 font-semibold text-xs bg-white px-3 py-2 rounded-lg border border-slate-200 shadow-2xs">
+            <i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i>
             <span>Buka Berkas Lampiran</span>
           </a>
         `;
@@ -408,7 +408,7 @@ function renderActivitiesTimeline(activities) {
 
   if (activities.length === 0) {
     container.innerHTML = `
-      <div class="text-center py-4 text-brand-400 text-xs">
+      <div class="text-center py-4 text-slate-400 text-xs">
         Belum ada diskusi pada tiket ini.
       </div>
     `;
@@ -427,20 +427,20 @@ function renderActivitiesTimeline(activities) {
 
     html += `
       <div class="flex space-x-2.5 text-xs">
-        <div class="w-7 h-7 rounded-lg ${isAdmin ? 'bg-brand-900 text-white' : 'bg-brand-200 text-brand-800'} flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold shadow-2xs">
+        <div class="w-7 h-7 rounded-lg ${isAdmin ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-800'} flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold shadow-2xs">
           <i data-lucide="${icon}" class="w-3.5 h-3.5"></i>
         </div>
-        <div class="flex-1 bg-white p-3 rounded-xl border border-brand-200 shadow-2xs">
+        <div class="flex-1 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
           <div class="flex items-center justify-between mb-1">
-            <span class="font-bold text-brand-950 flex items-center space-x-1.5">
+            <span class="font-bold text-slate-950 flex items-center space-x-1.5">
               <span>${escapeHtml(act.author_name)}</span>
-              <span class="text-[9px] uppercase px-1.5 py-0.2 rounded font-semibold ${isAdmin ? 'bg-brand-900 text-white' : 'bg-brand-100 text-brand-700'}">
+              <span class="text-[9px] uppercase px-1.5 py-0.2 rounded font-semibold ${isAdmin ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'}">
                 ${isAdmin ? 'IT Support' : 'Pelapor'}
               </span>
             </span>
-            <span class="text-[10px] text-brand-400">${formatDateTime(act.created_at)}</span>
+            <span class="text-[10px] text-slate-400">${formatDateTime(act.created_at)}</span>
           </div>
-          <p class="text-brand-700 leading-relaxed whitespace-pre-line text-xs">${escapeHtml(act.message)}</p>
+          <p class="text-slate-700 leading-relaxed whitespace-pre-line text-xs">${escapeHtml(act.message)}</p>
         </div>
       </div>
     `;
@@ -493,80 +493,75 @@ function closeModal(modalId) {
   if (modal) modal.classList.add('hidden');
 }
 
-// ── SEMANTIC BADGES WITH TASTE (ANTI-SLOP) ───────────────────
+// ── RESTRAINED MINIMAL BADGES ────────────────────────────────
 function getStatusBadge(status) {
   switch (status) {
     case 'Open':
-      return `<span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
-        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-        <span>Open</span>
+      return `<span class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-300">
+        Open
       </span>`;
     case 'In Progress':
-      return `<span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-800 border border-sky-200">
-        <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>
-        <span>In Progress</span>
+      return `<span class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200">
+        In Progress
       </span>`;
     case 'Pending User':
-      return `<span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-800 border border-purple-200">
-        <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-        <span>Pending User</span>
+      return `<span class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+        Pending User
       </span>`;
     case 'Resolved':
-      return `<span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-        <span>Resolved</span>
+      return `<span class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+        Resolved
       </span>`;
     case 'Closed':
-      return `<span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-brand-100 text-brand-600 border border-brand-200">
-        <span>Closed</span>
+      return `<span class="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+        Closed
       </span>`;
     default:
-      return `<span class="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded bg-brand-100 text-brand-700">${status}</span>`;
+      return `<span class="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700">${status}</span>`;
   }
 }
 
 function getStatusColorClasses(status) {
   switch (status) {
-    case 'Open': return 'bg-amber-50 text-amber-800 border border-amber-200';
-    case 'In Progress': return 'bg-sky-50 text-sky-800 border border-sky-200';
-    case 'Pending User': return 'bg-purple-50 text-purple-800 border border-purple-200';
+    case 'Open': return 'bg-slate-100 text-slate-800 border border-slate-300';
+    case 'In Progress': return 'bg-blue-50 text-blue-800 border border-blue-200';
+    case 'Pending User': return 'bg-slate-100 text-slate-700 border border-slate-200';
     case 'Resolved': return 'bg-emerald-50 text-emerald-800 border border-emerald-200';
-    case 'Closed': return 'bg-brand-100 text-brand-600 border border-brand-200';
-    default: return 'bg-brand-100 text-brand-700 border border-brand-200';
+    case 'Closed': return 'bg-slate-100 text-slate-600 border border-slate-200';
+    default: return 'bg-slate-100 text-slate-700 border border-slate-200';
   }
 }
 
 function getPriorityBadge(priority) {
   switch (priority) {
     case 'Critical':
-      return `<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200 uppercase tracking-wider">
-        <i data-lucide="alert-octagon" class="w-3 h-3"></i>
-        <span>Critical</span>
+      return `<span class="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded bg-red-50 text-red-700 border border-red-200 uppercase">
+        Critical
       </span>`;
     case 'High':
-      return `<span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wider">
-        <span>High</span>
+      return `<span class="inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-300 uppercase">
+        High
       </span>`;
     case 'Medium':
-      return `<span class="inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-md bg-brand-100 text-brand-700 border border-brand-200">
-        <span>Medium</span>
+      return `<span class="inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+        Medium
       </span>`;
     case 'Low':
-      return `<span class="inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-md bg-brand-50 text-brand-500 border border-brand-200">
-        <span>Low</span>
+      return `<span class="inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-50 text-slate-500 border border-slate-200">
+        Low
       </span>`;
     default:
-      return `<span class="inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-md bg-brand-50 text-brand-600">${priority}</span>`;
+      return `<span class="inline-flex items-center text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-50 text-slate-600">${priority}</span>`;
   }
 }
 
 function getPriorityColorClasses(priority) {
   switch (priority) {
-    case 'Critical': return 'text-rose-700 bg-rose-50 border border-rose-200';
-    case 'High': return 'text-amber-700 bg-amber-50 border border-amber-200';
-    case 'Medium': return 'text-brand-700 bg-brand-100 border border-brand-200';
-    case 'Low': return 'text-brand-500 bg-brand-50 border border-brand-200';
-    default: return 'text-brand-600 bg-brand-50 border border-brand-200';
+    case 'Critical': return 'text-red-700 bg-red-50 border border-red-200';
+    case 'High': return 'text-slate-800 bg-slate-100 border border-slate-300';
+    case 'Medium': return 'text-slate-600 bg-slate-100 border border-slate-200';
+    case 'Low': return 'text-slate-500 bg-slate-50 border border-slate-200';
+    default: return 'text-slate-600 bg-slate-50 border border-slate-200';
   }
 }
 
